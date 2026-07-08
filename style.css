@@ -144,11 +144,21 @@ footer{
 
 .note-content{
 
-    white-space:pre-wrap;
+    white-space: pre-wrap;
+
+    word-wrap: break-word;
+
+    font-family: "Poppins", sans-serif;
+
+    font-size:18px;
 
     line-height:1.8;
 
-    font-size:18px;
+    background:white;
+
+    border:none;
+
+    margin-top:10px;
 
 }
 
