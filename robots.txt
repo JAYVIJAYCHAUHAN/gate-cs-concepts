@@ -1,0 +1,5 @@
+User-agent: *
+
+Allow: /
+
+Sitemap: https://jayvijaychauhan.github.io/gate-cs-concepts/sitemap.xml
