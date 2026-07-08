@@ -30,19 +30,14 @@ if (notesContainer) {
 
                 const body = lines.slice(1).join("\n");
 
-                html += `
-                <section class="note">
+html += `
+<section class="note">
+    <h2>${title}</h2>
 
-                    <h2>${title}</h2>
+    <pre class="note-content">${body}</pre>
 
-                    <div class="note-content">
-
-${body}
-
-                    </div>
-
-                </section>
-                `;
+</section>
+`;
 
             });
 
