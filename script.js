@@ -1,66 +1,53 @@
-// =============================
-// Subject Search
-// =============================
+// Detect current subject
 
-const searchBox = document.getElementById("search");
+const page = window.location.pathname.split("/").pop();
 
-if (searchBox) {
+const fileName = page.replace(".html", ".txt");
 
-    searchBox.addEventListener("keyup", function () {
+const notesContainer = document.getElementById("notes");
 
-        let value = this.value.toLowerCase();
+if (notesContainer) {
 
-        let cards = document.querySelectorAll(".card");
+    fetch("../notes/" + fileName)
 
-        cards.forEach(function(card){
+        .then(response => response.text())
 
-            let text = card.innerText.toLowerCase();
+        .then(text => {
 
-            if(text.includes(value)){
-                card.style.display = "block";
-            }else{
-                card.style.display = "none";
-            }
+            const concepts = text.split("==================================================");
 
-        });
+            let html = "";
 
-    });
+            concepts.forEach(concept => {
 
-}
+                concept = concept.trim();
 
+                if (!concept) return;
 
-// =============================
-// Visitor Counter (Temporary)
-// =============================
+                const lines = concept.split("\n");
 
-// Replace this later with GoatCounter or Google Analytics.
+                const title = lines[0].replace("#", "").trim();
 
-const visitor = document.getElementById("visitor-count");
+                const body = lines.slice(1).join("\n");
 
-if(visitor){
+                html += `
+                <section class="note">
 
-    visitor.innerHTML = "Coming Soon";
+                    <h2>${title}</h2>
 
-}
+                    <div class="note-content">
 
+${body}
 
-// =============================
-// Smooth Scroll
-// =============================
+                    </div>
 
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-
-    anchor.addEventListener("click", function(e){
-
-        e.preventDefault();
-
-        document.querySelector(this.getAttribute("href"))
-            .scrollIntoView({
-
-                behavior:"smooth"
+                </section>
+                `;
 
             });
 
-    });
+            notesContainer.innerHTML = html;
 
-});
+        });
+
+}
