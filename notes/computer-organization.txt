@@ -14,8 +14,6 @@ Y μsec = memory cycle time or transfer time (words/block)
 
 % CPU busy ={ X/Y }*100
 
-==================================================
-
 # Burst Mode
 
 X μsec = Data transfer time
