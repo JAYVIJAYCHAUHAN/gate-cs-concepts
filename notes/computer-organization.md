@@ -129,7 +129,7 @@ The objective is to eliminate non-essential maximal compatibility classes while 
 
 ---
 
-# Analytical Calculations & Numerical Breakdowns
+## Analytical Calculations & Numerical Breakdowns
 
 ## I. Control Memory Configuration and Capacity
 
