@@ -25,6 +25,7 @@ Y μsec = Memory cycle time
 % CPU busy ={X/(X+Y)}×100
 
 ==================================================
+
 Set Associative Visualization.
 ![Set-Associative](setasso.jpg)
 
