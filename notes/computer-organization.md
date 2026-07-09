@@ -26,5 +26,5 @@ Y μsec = Memory cycle time
 
 ==================================================
 Set Associative Visualization.
+![Set-Associative](setasso.jpg)
 
-@image setasso.jpg
