@@ -51,7 +51,7 @@ Horizontal Microprogramming: A method where every bit in a memory location is as
 Encoded Control Signals: To reduce memory size, control signals can be encoded, requiring $\lceil\log\_2 n\rceil$ bits per location. However, this requires an external decoder circuit and limits the unit to activating only one control signal at a time.
 Maximal Compatibility Classes (MCC): A design optimization technique used to group compatible control signals together into classes to find a minimal cover.
 Minimal Cover and Essential Classes: The goal is to eliminate non-essential maximal compatibility classes while retaining "essential compatibility classes" to ensure all system control signals are represented in a minimized format.
-🔢 Analytical Calculations & Numerical Breakdowns
+ Analytical Calculations & Numerical Breakdowns
 I. Control Memory Configuration and Capacity
 Objective: Determine the total size or specific fields of a control memory based on hardware requirements.
 Example Problem: A system requires 13 distinct control signals ($C\_0$ to $C\_{12}$). The control memory needs to store 512 locations. Each memory location includes a mode bit ($M$) and a branch address ($BA$).
