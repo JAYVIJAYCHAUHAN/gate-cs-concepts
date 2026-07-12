@@ -199,15 +199,30 @@ section h2{
 =========================== */
 
 .about{
-
-    text-align:center;
-
+text-align:center;
+  padding: 50px 20px;
 }
 
 .about p{
 
     margin:8px 0;
 
+}
+
+    .profile-img {
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #4CAF50;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    margin: 20px auto;
+    display: block;
+    transition: 0.3s;
+}
+
+.profile-img:hover {
+    transform: scale(1.05);
 }
 
 /* ===========================
