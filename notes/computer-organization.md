@@ -300,3 +300,541 @@ Group compatible signals into **Maximal Compatibility Classes (MCC)** to minimiz
 
 ---
 **Source:** [NPTEL Lecture Notes](https://drive.google.com/file/d/1sl5y6o1bLdunXvaGqwnRYvsU2jJFtv2r/view)
+
+ 
+# Runtime Environments
+
+Runtime environments define how a program is executed, how memory is organized, and how functions, variables, and parameters are managed during execution. These concepts are frequently tested in **GATE Computer Science**, especially in compiler design.
+
+---
+
+## 1. Data Representation & Memory Alignment
+
+In a runtime environment, variables are stored in memory according to the size of their data type.
+
+## Primitive Data Types
+
+Typical storage sizes are:
+
+| Data Type | Typical Size |
+|-----------|-------------|
+| Character | 1–2 Bytes |
+| Integer | 2, 4, or 8 Bytes |
+| Float | 4–16 Bytes |
+| Pointer (32-bit) | 4 Bytes |
+| Pointer (64-bit) | 8 Bytes |
+
+### Pointer Representation
+
+Pointers are stored as unsigned integers representing memory addresses.
+
+- **32-bit architecture:** 4-byte pointer → Address space = **4 GB**
+- **64-bit architecture:** 8-byte pointer
+
+---
+
+## Structure Padding & Memory Alignment
+
+Compilers insert **padding bytes** to ensure that data members begin at properly aligned memory addresses.
+
+### Example
+
+```c
+struct example {
+    int num;      // 4 bytes
+    char ch;      // 1 byte
+    double dbl;   // 8 bytes
+};
+```
+
+### Without Alignment
+
+Total Size
+
+\[
+4 + 1 + 8 = 13 \text{ bytes}
+\]
+
+### With Standard Alignment
+
+| Member | Offset |
+|---------|--------|
+| num | 0–3 |
+| ch | 4 |
+| Padding | 5–7 |
+| dbl | 8–15 |
+
+Since `double` must start at an address divisible by **8**, **3 bytes of padding** are inserted.
+
+**Total Structure Size = 16 Bytes**
+
+> **GATE Point:** Always consider compiler alignment while calculating structure size.
+
+---
+
+## 2. Multi-Dimensional Array Address Calculation
+
+Compilers convert multi-dimensional arrays into linear memory.
+
+There are two common implementations:
+
+- Contiguous (True Multi-Dimensional Array)
+- Array of Arrays
+
+---
+
+## Strategy A: True Multi-Dimensional Array (Contiguous Memory)
+
+### Row-Major Order (Used in C, C++)
+
+Elements are stored row by row.
+
+For
+
+\[
+A[L_1..U_1,\;L_2..U_2]
+\]
+
+where
+
+- \(L_1,L_2\) = Lower bounds
+- \(U_1,U_2\) = Upper bounds
+- \(N=(U_2-L_2+1)\) = Number of columns
+- \(W\) = Size of each element
+
+### Address Formula
+
+\[
+\boxed{
+\text{Address}(A[i][j])
+=
+\text{Base}
++
+W
+\left(
+(i-L_1)N
++
+(j-L_2)
+\right)
+}
+\]
+
+---
+
+### GATE Example
+
+Given
+
+- Array: \(B[5..8,\;6..7]\)
+- Integer size = 4 bytes
+
+Find address of
+
+\[
+B[8][6]
+\]
+
+Here,
+
+- \(L_1=5\)
+- \(L_2=6\)
+- \(N=(7-6+1)=2\)
+
+Substituting,
+
+\[
+\text{Address}(B[8][6])
+=
+B
++
+4
+\left(
+(8-5)\times2
++
+(6-6)
+\right)
+\]
+
+\[
+=
+B
++
+4(6)
+=
+B+24
+\]
+
+**Answer**
+
+\[
+\boxed{B+24}
+\]
+
+---
+
+## Column-Major Order (Used in Fortran)
+
+Elements are stored column by column.
+
+Let
+
+\[
+M=(U_1-L_1+1)
+\]
+
+be the number of rows.
+
+### Address Formula
+
+\[
+\boxed{
+\text{Address}(A[i][j])
+=
+\text{Base}
++
+W
+\left(
+(j-L_2)M
++
+(i-L_1)
+\right)
+}
+\]
+
+---
+
+## Strategy B: Array of Arrays (Java, Decaf)
+
+Instead of one contiguous block,
+
+- Each row is separately allocated.
+- The main array stores pointers to rows.
+
+### Accessing A[i][j]
+
+Two pointer dereferences are required.
+
+### Step 1
+
+Locate row pointer
+
+\[
+\text{Base}
++
+i
+\times
+\text{sizeof(pointer)}
+\]
+
+Dereference to obtain row base.
+
+### Step 2
+
+Locate element
+
+\[
+\text{Row Base}
++
+j
+\times
+\text{sizeof(element)}
+\]
+
+Dereference again to obtain the value.
+
+### Advantages
+
+- Supports jagged arrays
+- Rows need not be contiguous
+
+### Disadvantages
+
+- Extra memory for row pointers
+- Slower due to additional dereference
+
+---
+
+# 3. Storage Classes & Memory Segments
+
+An executing program is divided into several runtime memory segments.
+
+| Segment | Storage Class | Lifetime | Scope |
+|----------|--------------|----------|-------|
+| Code | Instructions | Entire Program | Global |
+| Static/Data | Global & Static Variables | Entire Program | Global / Function |
+| Stack | Local Variables & Parameters | Function Call | Block / Function |
+| Heap | Dynamic Memory (`malloc`, `new`) | Until Freed / Garbage Collected | Pointer Accessible |
+
+---
+
+## Important GATE Note
+
+Older versions of **Fortran** allocated local variables statically instead of using a stack.
+
+Advantages
+
+- Faster execution
+
+Disadvantage
+
+- Recursion was impossible because every recursive call reused the same memory.
+
+---
+
+## 4. Runtime Stack & Activation Records
+
+Each function call creates an **Activation Record (Stack Frame)**.
+
+---
+
+## Contents of an Activation Record
+
+### 1. Parameters
+
+Arguments passed by the caller.
+
+---
+
+### 2. Return Address
+
+Address of the next instruction after the function call.
+
+---
+
+### 3. Dynamic Link (Frame Pointer)
+
+Points to the caller's stack frame.
+
+Used to restore the previous frame after returning.
+
+---
+
+### 4. Static Link
+
+Used in languages supporting nested procedures (like Pascal).
+
+Points to the lexically enclosing function.
+
+---
+
+### 5. Local Variables & Temporaries
+
+Stores variables declared inside the function.
+
+---
+
+## Calling Sequence
+
+```text
+Caller
+│
+├── Save Registers
+├── Push Arguments
+├── Set Static Link
+├── Push Return Address
+└── Jump to Callee
+             │
+             ▼
+Callee
+│
+├── Save Registers
+├── Create Frame Pointer
+├── Allocate Local Variables
+├── Execute Function Body
+├── Restore Frame
+├── Restore Registers
+└── Return
+             │
+             ▼
+Caller
+│
+├── Remove Arguments
+├── Restore Registers
+└── Continue Execution
+```
+
+---
+
+# 5. Parameter Passing Mechanisms
+
+| Mechanism | Description | GATE Implication |
+|-----------|-------------|------------------|
+| Pass by Value | Copy of argument is passed | Changes do not affect caller |
+| Pass by Reference | Address of variable is passed | Changes affect caller |
+| Pass by Value-Result | Copy-In Copy-Out | Copy-out order may matter |
+| Pass by Name | Expression substituted textually | Expression evaluated repeatedly |
+
+---
+
+## Pass by Value
+
+- Copy of argument is created.
+- Original variable remains unchanged.
+
+Used in **C**.
+
+---
+
+## Pass by Reference
+
+Instead of copying,
+
+the address of the original variable is passed.
+
+Advantages
+
+- Efficient for large structures
+- Caller variable can be modified directly
+
+---
+
+## Pass by Value-Result
+
+Also called **Copy-In Copy-Out**.
+
+Execution:
+
+1. Copy argument into local variable.
+2. Execute function.
+3. Copy final local value back to caller.
+
+Unlike reference passing, updates occur **only when the function returns**.
+
+---
+
+## Pass by Name
+
+Arguments behave like macro substitutions.
+
+Every use of the parameter re-evaluates the original expression.
+
+---
+
+## Diagnostic Example
+
+```c
+int x = 1;
+
+void foo(int a)
+{
+    x = 2;
+    a = 3;
+}
+
+foo(x);
+```
+
+### Pass by Reference
+
+- `a` refers to `x`
+- `x = 2`
+- `a = 3` updates `x`
+
+Final
+
+\[
+\boxed{x=3}
+\]
+
+---
+
+### Pass by Value-Result
+
+Initially
+
+\[
+a=1
+\]
+
+Execution
+
+- `x=2`
+- `a=3`
+
+After function returns
+
+- Copy back
+
+Final
+
+\[
+\boxed{x=3}
+\]
+
+---
+
+## Collision Example
+
+```c
+int x = 1;
+
+void bar(int a, int b)
+{
+    a = 5;
+    b = 10;
+}
+
+bar(x, x);
+```
+
+---
+
+## Pass by Reference
+
+Both parameters refer to the same variable.
+
+Execution
+
+```
+x = 5
+x = 10
+```
+
+Final
+
+\[
+\boxed{x=10}
+\]
+
+---
+
+## Pass by Value-Result
+
+Initially
+
+```
+a = 1
+b = 1
+```
+
+After execution
+
+```
+a = 5
+b = 10
+```
+
+During copy-out,
+
+- If `a` copies first then `b`
+
+Final
+
+\[
+\boxed{x=10}
+\]
+
+- If `b` copies first then `a`
+
+Final
+
+\[
+\boxed{x=5}
+\]
+
+
+## Source
+
+- Alfred V. Aho, Stanford University, **CS143: Runtime Environments (Dragon Book Lecture Notes)**  
+  https://suif.stanford.edu/dragonbook/lecture-notes/Stanford-CS143/15-Runtime-Environments.pdf
+
