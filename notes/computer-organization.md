@@ -381,179 +381,6 @@ There are two common implementations:
 - Contiguous (True Multi-Dimensional Array)
 - Array of Arrays
 
----
-
-## Strategy A: True Multi-Dimensional Array (Contiguous Memory)
-
-### Row-Major Order (Used in C, C++)
-
-Elements are stored row by row.
-
-For
-
-\[
-A[L_1..U_1,\;L_2..U_2]
-\]
-
-where
-
-- \(L_1,L_2\) = Lower bounds
-- \(U_1,U_2\) = Upper bounds
-- \(N=(U_2-L_2+1)\) = Number of columns
-- \(W\) = Size of each element
-
-### Address Formula
-
-\[
-\boxed{
-\text{Address}(A[i][j])
-=
-\text{Base}
-+
-W
-\left(
-(i-L_1)N
-+
-(j-L_2)
-\right)
-}
-\]
-
----
-
-### GATE Example
-
-Given
-
-- Array: \(B[5..8,\;6..7]\)
-- Integer size = 4 bytes
-
-Find address of
-
-\[
-B[8][6]
-\]
-
-Here,
-
-- \(L_1=5\)
-- \(L_2=6\)
-- \(N=(7-6+1)=2\)
-
-Substituting,
-
-\[
-\text{Address}(B[8][6])
-=
-B
-+
-4
-\left(
-(8-5)\times2
-+
-(6-6)
-\right)
-\]
-
-\[
-=
-B
-+
-4(6)
-=
-B+24
-\]
-
-**Answer**
-
-\[
-\boxed{B+24}
-\]
-
----
-
-## Column-Major Order (Used in Fortran)
-
-Elements are stored column by column.
-
-Let
-
-\[
-M=(U_1-L_1+1)
-\]
-
-be the number of rows.
-
-### Address Formula
-
-\[
-\boxed{
-\text{Address}(A[i][j])
-=
-\text{Base}
-+
-W
-\left(
-(j-L_2)M
-+
-(i-L_1)
-\right)
-}
-\]
-
----
-
-## Strategy B: Array of Arrays (Java, Decaf)
-
-Instead of one contiguous block,
-
-- Each row is separately allocated.
-- The main array stores pointers to rows.
-
-### Accessing A[i][j]
-
-Two pointer dereferences are required.
-
-### Step 1
-
-Locate row pointer
-
-\[
-\text{Base}
-+
-i
-\times
-\text{sizeof(pointer)}
-\]
-
-Dereference to obtain row base.
-
-### Step 2
-
-Locate element
-
-\[
-\text{Row Base}
-+
-j
-\times
-\text{sizeof(element)}
-\]
-
-Dereference again to obtain the value.
-
-### Advantages
-
-- Supports jagged arrays
-- Rows need not be contiguous
-
-### Disadvantages
-
-- Extra memory for row pointers
-- Slower due to additional dereference
-
----
-
 # 3. Storage Classes & Memory Segments
 
 An executing program is divided into several runtime memory segments.
@@ -837,4 +664,210 @@ Final
 
 - Alfred V. Aho, Stanford University, **CS143: Runtime Environments (Dragon Book Lecture Notes)**  
   https://suif.stanford.edu/dragonbook/lecture-notes/Stanford-CS143/15-Runtime-Environments.pdf
+
+  # Computer Architecture Performance
+
+## 1. Core Performance Metrics & Equations
+
+The foundation of processor performance relies on the **CPU Performance Equation**:
+
+$$
+\text{CPU Time} = \text{Instruction Count (IC)} \times \text{CPI} \times \text{Clock Cycle Time } (T_c)
+$$
+
+Or expressed using clock frequency ($f$), where $f = \frac{1}{T_c}$:
+
+$$
+\text{CPU Time} = \frac{\text{IC} \times \text{CPI}}{f}
+$$
+
+- **Instruction Count (IC):** Dynamic instruction count executed by the program (determined by the ISA, compiler, and program).
+- **CPI (Cycles Per Instruction):** Average number of clock cycles required to execute an instruction.
+- **Clock Cycle Time ($T_c$):** Length of a single clock cycle (e.g., $1 \text{ GHz} = 1 \text{ ns}$ cycle time). Determined by hardware technology and the **critical path**.
+
+### Key Metric Definitions
+
+**MIPS (Millions of Instructions Per Second):**
+
+$$
+\text{MIPS} = \frac{\text{Clock Rate}}{\text{CPI} \times 10^6}
+= \frac{\text{IC}}{\text{Execution Time} \times 10^6}
+$$
+
+- **IPC (Instructions Per Cycle):** The inverse of CPI.
+
+$$
+\text{IPC} = \frac{1}{\text{CPI}}
+$$
+
+---
+
+## 2. Calculating Average CPI
+
+When a program runs varying instruction types with different cycle requirements, the overall CPI is a weighted average based on the **instruction mix frequency**:
+
+$$
+\text{Average CPI} = \sum_{i=1}^{n} (\text{CPI}_i \times \text{Frequency}_i)
+$$
+
+### 📝 Numerical Example (Instruction Mix)
+
+A program consists of:
+
+- **25% Load/Store** instructions ($\text{CPI} = 3$)
+- **60% Arithmetic** instructions ($\text{CPI} = 2$)
+- **15% Branch** instructions ($\text{CPI} = 1$)
+
+**Calculation:**
+
+$$
+\text{Average CPI} = (0.25 \times 3) + (0.60 \times 2) + (0.15 \times 1)
+$$
+
+$$
+\text{Average CPI} = 0.75 + 1.20 + 0.15 = 2.1 \text{ cycles/instruction}
+$$
+
+If the CPU runs at **30 MHz** ($33 \text{ ns}$ clock period) and executes **400k instructions**:
+
+$$
+\text{MIPS} = \frac{30 \text{ MHz}}{2.1 \text{ CPI}}
+\approx 14.28 \text{ MIPS}
+$$
+
+$$
+\text{CPU Time}
+= 400,000 \times 2.1 \times 33 \times 10^{-9} \text{ s}
+\approx 27.7 \text{ ms}
+$$
+
+---
+
+## 3. Amdahl's Law (Speedup Limits)
+
+Amdahl's Law quantifies the overall speedup gained by improving a specific component of a system. It highlights the **law of diminishing returns**—optimize the common case.
+
+$$
+\text{Execution Time}_{\text{new}}
+=
+\text{Execution Time}_{\text{unaffected}}
++
+\frac{\text{Execution Time}_{\text{affected}}}
+{\text{Speedup}_{\text{local}}}
+$$
+
+Alternatively, using the fraction of time enhanced ($f_{\text{enhanced}}$):
+
+$$
+\text{Overall Speedup}
+=
+\frac{1}
+{(1-f_{\text{enhanced}})
++
+\frac{f_{\text{enhanced}}}
+{\text{Speedup}_{\text{local}}}}
+$$
+
+### 📝 Numerical Example (Targeted CPI Optimization)
+
+Using the same instruction mix from above ($\text{CPI}=2.1$), you want to make the processor run **2× faster** by optimizing only arithmetic operations.
+
+1. Target overall CPI:
+
+$$
+\text{CPI}_{\text{target}}
+=
+\frac{2.1}{2}
+=
+1.05
+$$
+
+2. Set up the weighted equation:
+
+$$
+1.05
+=
+(0.25 \times 3)
++
+(0.60 \times X)
++
+(0.15 \times 1)
+$$
+
+$$
+1.05
+=
+0.75
++
+0.60X
++
+0.15
+$$
+
+$$
+1.05
+=
+0.90
++
+0.60X
+$$
+
+$$
+0.15
+=
+0.60X
+\Rightarrow
+X=0.25
+$$
+
+> **GATE Insight:** To double the performance, the arithmetic CPI must decrease from **2 to 0.25**. If the required CPI becomes negative or physically impossible, Amdahl's Law shows that the desired speedup cannot be achieved by optimizing only that component.
+
+---
+
+## 4. Single-Cycle vs. Multi-Cycle Datapaths
+
+| Metric / Feature | Single-Cycle Datapath | Multi-Cycle Datapath |
+|------------------|-----------------------|----------------------|
+| **CPI** | Always **1** | Varies by instruction |
+| **Clock Cycle Time ($T_c$)** | Long; determined by the slowest instruction | Short; determined by the longest execution step |
+| **Hardware Reuse** | No reuse within a cycle | Functional units can be reused across cycles |
+
+### 📝 Performance Comparison Example
+
+Assume:
+
+- **Branch:** $33 \text{ ns}$
+- **Arithmetic:** $50 \text{ ns}$
+- **Load/Store:** $100 \text{ ns}$
+
+**Single-Cycle Implementation**
+
+- Clock period = $100 \text{ ns}$
+- Clock frequency = $10 \text{ MHz}$
+- Every instruction takes **100 ns**
+
+**Multi-Cycle Implementation**
+
+Clock period = $33 \text{ ns}$
+
+- Branch = 1 cycle = $33 \text{ ns}$
+- Arithmetic = 2 cycles = $66 \text{ ns}$
+- Load/Store = 3 cycles = $99 \text{ ns}$
+
+---
+
+## 5. Latency vs. Throughput
+
+- **Latency:** Time required to complete a single task (response/execution time). It depends on the **critical path**.
+- **Throughput:** Number of tasks completed per unit time.
+
+> **GATE Tip:** Increasing the clock frequency alone does **not** always improve performance. If CPI increases due to architectural or compiler effects, the overall execution time may remain unchanged or even become worse.
+
+---
+
+## Source
+
+Cornell University — Computer Architecture Performance Notes
+
+https://www.cs.cornell.edu/courses/cs3410/2019sp/schedule/slides/08-performance-notes.pdf
 
