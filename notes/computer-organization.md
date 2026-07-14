@@ -1,4 +1,4 @@
-# Cycle Stealing Mode
+# 1-Cycle Stealing Mode
 
 In cycle stealing mode we always follow pipelining concept that when one byte is getting transferred then Device is parallel preparing the next byte.
 
@@ -14,7 +14,7 @@ Y μsec = memory cycle time or transfer time (words/block)
 
 % CPU busy ={ X/Y }*100
 
-# Burst Mode
+# 2-Burst Mode
 
 X μsec = Data transfer time
 
@@ -25,11 +25,11 @@ Y μsec = Memory cycle time
 % CPU busy ={X/(X+Y)}×100
 
 
-# Set Associative Visualization.
+# 3-Set Associative Visualization.
 
 ![Set-Associative](setasso.jpg)
 
-# Microprogrammed Control Unit Concept
+# 4-Microprogrammed Control Unit Concept
 
 ## 1. Software-Driven Control
 
@@ -302,7 +302,7 @@ Group compatible signals into **Maximal Compatibility Classes (MCC)** to minimiz
 **Source:** [NPTEL Lecture Notes](https://drive.google.com/file/d/1sl5y6o1bLdunXvaGqwnRYvsU2jJFtv2r/view)
 
  
-# Runtime Environments
+# 5-Runtime Environments
 
 Runtime environments define how a program is executed, how memory is organized, and how functions, variables, and parameters are managed during execution. These concepts are frequently tested in **GATE Computer Science**, especially in compiler design.
 
@@ -659,215 +659,169 @@ Final
 \boxed{x=5}
 \]
 
-
-## Source
-
-- Alfred V. Aho, Stanford University, **CS143: Runtime Environments (Dragon Book Lecture Notes)**  
-  https://suif.stanford.edu/dragonbook/lecture-notes/Stanford-CS143/15-Runtime-Environments.pdf
-
-
-# Computer Architecture Performance
+# 6-Computer Architecture Performance
 
 ## 1. Core Performance Metrics & Equations
 
-The foundation of processor performance relies on the **CPU Performance Equation**:
+The foundation of processor performance is the **CPU Performance Equation**.
 
-$$
-\text{CPU Time} = \text{Instruction Count (IC)} \times \text{CPI} \times \text{Clock Cycle Time } (T_c)
-$$
+### CPU Performance Equation
 
-Or expressed using clock frequency ($f$), where $f = \frac{1}{T_c}$:
+**CPU Time = Instruction Count (IC) × CPI × Clock Cycle Time (Tc)**
 
-$$
-\text{CPU Time} = \frac{\text{IC} \times \text{CPI}}{f}
-$$
+or
 
-- **Instruction Count (IC):** Dynamic instruction count executed by the program (determined by the ISA, compiler, and program).
-- **CPI (Cycles Per Instruction):** Average number of clock cycles required to execute an instruction.
-- **Clock Cycle Time ($T_c$):** Length of a single clock cycle (e.g., $1 \text{ GHz} = 1 \text{ ns}$ cycle time). Determined by hardware technology and the **critical path**.
+**CPU Time = (Instruction Count (IC) × CPI) ÷ Clock Frequency (f)**
 
-### Key Metric Definitions
+where
 
-**MIPS (Millions of Instructions Per Second):**
+**Clock Frequency (f) = 1 ÷ Clock Cycle Time (Tc)**
 
-$$
-\text{MIPS} = \frac{\text{Clock Rate}}{\text{CPI} \times 10^6}
-= \frac{\text{IC}}{\text{Execution Time} \times 10^6}
-$$
+### Definitions
 
-- **IPC (Instructions Per Cycle):** The inverse of CPI.
+- **Instruction Count (IC):** Total number of instructions executed by a program.
+- **CPI (Cycles Per Instruction):** Average number of clock cycles required to execute one instruction.
+- **Clock Cycle Time (Tc):** Time taken by one clock cycle. It depends on the processor's critical path.
 
-$$
-\text{IPC} = \frac{1}{\text{CPI}}
-$$
+### Key Performance Metrics
+
+#### MIPS (Million Instructions Per Second)
+
+**MIPS = Clock Rate ÷ (CPI × 10⁶)**
+
+or
+
+**MIPS = Instruction Count ÷ (Execution Time × 10⁶)**
+
+#### IPC (Instructions Per Cycle)
+
+**IPC = 1 ÷ CPI**
 
 ---
 
 ## 2. Calculating Average CPI
 
-When a program runs varying instruction types with different cycle requirements, the overall CPI is a weighted average based on the **instruction mix frequency**:
+When different instruction types require different numbers of clock cycles, the average CPI is calculated using the instruction mix.
 
-$$
-\text{Average CPI} = \sum_{i=1}^{n} (\text{CPI}_i \times \text{Frequency}_i)
-$$
+### Formula
 
-### 📝 Numerical Example (Instruction Mix)
+**Average CPI = Σ(CPIᵢ × Frequencyᵢ)**
 
-A program consists of:
+where:
 
-- **25% Load/Store** instructions ($\text{CPI} = 3$)
-- **60% Arithmetic** instructions ($\text{CPI} = 2$)
-- **15% Branch** instructions ($\text{CPI} = 1$)
+- **CPIᵢ** = CPI of instruction type *i*
+- **Frequencyᵢ** = Fraction of instruction type *i*
 
-**Calculation:**
+### 📝 Numerical Example
 
-$$
-\text{Average CPI} = (0.25 \times 3) + (0.60 \times 2) + (0.15 \times 1)
-$$
+Suppose a program contains:
 
-$$
-\text{Average CPI} = 0.75 + 1.20 + 0.15 = 2.1 \text{ cycles/instruction}
-$$
+- **25% Load/Store** instructions (CPI = 3)
+- **60% Arithmetic** instructions (CPI = 2)
+- **15% Branch** instructions (CPI = 1)
 
-If the CPU runs at **30 MHz** ($33 \text{ ns}$ clock period) and executes **400k instructions**:
+Calculation:
 
-$$
-\text{MIPS} = \frac{30 \text{ MHz}}{2.1 \text{ CPI}}
-\approx 14.28 \text{ MIPS}
-$$
+**Average CPI = (0.25 × 3) + (0.60 × 2) + (0.15 × 1)**
 
-$$
-\text{CPU Time}
-= 400,000 \times 2.1 \times 33 \times 10^{-9} \text{ s}
-\approx 27.7 \text{ ms}
-$$
+**Average CPI = 0.75 + 1.20 + 0.15 = 2.1 cycles/instruction**
+
+If the processor executes **400,000 instructions** at **30 MHz**:
+
+**MIPS = 30 ÷ 2.1 ≈ 14.28 MIPS**
+
+**CPU Time = 400,000 × 2.1 × 33 ns ≈ 27.7 ms**
 
 ---
 
 ## 3. Amdahl's Law (Speedup Limits)
 
-Amdahl's Law quantifies the overall speedup gained by improving a specific component of a system. It highlights the **law of diminishing returns**—optimize the common case.
+Amdahl's Law determines the maximum performance improvement obtained by optimizing only one part of a system.
 
-$$
-\text{Execution Time}_{\text{new}}
-=
-\text{Execution Time}_{\text{unaffected}}
-+
-\frac{\text{Execution Time}_{\text{affected}}}
-{\text{Speedup}_{\text{local}}}
-$$
+### Formula
 
-Alternatively, using the fraction of time enhanced ($f_{\text{enhanced}}$):
+**New Execution Time = Unaffected Time + (Affected Time ÷ Local Speedup)**
 
-$$
-\text{Overall Speedup}
-=
-\frac{1}
-{(1-f_{\text{enhanced}})
-+
-\frac{f_{\text{enhanced}}}
-{\text{Speedup}_{\text{local}}}}
-$$
+or
 
-### 📝 Numerical Example (Targeted CPI Optimization)
+**Overall Speedup = 1 ÷ [(1 − Enhanced Fraction) + (Enhanced Fraction ÷ Local Speedup)]**
 
-Using the same instruction mix from above ($\text{CPI}=2.1$), you want to make the processor run **2× faster** by optimizing only arithmetic operations.
+### 📝 Numerical Example
 
-1. Target overall CPI:
+Current Average CPI = **2.1**
 
-$$
-\text{CPI}_{\text{target}}
-=
-\frac{2.1}{2}
-=
-1.05
-$$
+Target performance = **2× faster**
 
-2. Set up the weighted equation:
+Therefore,
 
-$$
-1.05
-=
-(0.25 \times 3)
-+
-(0.60 \times X)
-+
-(0.15 \times 1)
-$$
+**Target CPI = 2.1 ÷ 2 = 1.05**
 
-$$
-1.05
-=
-0.75
-+
-0.60X
-+
-0.15
-$$
+Weighted equation:
 
-$$
-1.05
-=
-0.90
-+
-0.60X
-$$
+**1.05 = (0.25 × 3) + (0.60 × X) + (0.15 × 1)**
 
-$$
-0.15
-=
-0.60X
-\Rightarrow
-X=0.25
-$$
+**1.05 = 0.75 + 0.60X + 0.15**
 
-> **GATE Insight:** To double the performance, the arithmetic CPI must decrease from **2 to 0.25**. If the required CPI becomes negative or physically impossible, Amdahl's Law shows that the desired speedup cannot be achieved by optimizing only that component.
+**1.05 = 0.90 + 0.60X**
+
+**0.15 = 0.60X**
+
+**X = 0.25**
+
+> **GATE Insight:** To achieve a 2× speedup, the arithmetic CPI must decrease from **2** to **0.25**. If the required CPI becomes impossible (negative or unrealistically small), the target performance cannot be achieved by optimizing only that instruction type.
 
 ---
 
 ## 4. Single-Cycle vs. Multi-Cycle Datapaths
 
-| Metric / Feature | Single-Cycle Datapath | Multi-Cycle Datapath |
-|------------------|-----------------------|----------------------|
-| **CPI** | Always **1** | Varies by instruction |
-| **Clock Cycle Time ($T_c$)** | Long; determined by the slowest instruction | Short; determined by the longest execution step |
-| **Hardware Reuse** | No reuse within a cycle | Functional units can be reused across cycles |
+| Feature | Single-Cycle Datapath | Multi-Cycle Datapath |
+|---------|-----------------------|----------------------|
+| CPI | Always 1 | Depends on instruction |
+| Clock Cycle Time | Determined by the slowest instruction | Determined by the longest execution step |
+| Hardware Reuse | Not possible | Functional units are reused |
+| Clock Frequency | Lower | Higher |
 
-### 📝 Performance Comparison Example
+### 📝 Example
 
-Assume:
+Instruction delays:
 
-- **Branch:** $33 \text{ ns}$
-- **Arithmetic:** $50 \text{ ns}$
-- **Load/Store:** $100 \text{ ns}$
+- Branch = **33 ns**
+- Arithmetic = **50 ns**
+- Load/Store = **100 ns**
 
-**Single-Cycle Implementation**
+**Single-Cycle Processor**
 
-- Clock period = $100 \text{ ns}$
-- Clock frequency = $10 \text{ MHz}$
+- Clock Period = **100 ns**
+- Clock Frequency = **10 MHz**
 - Every instruction takes **100 ns**
 
-**Multi-Cycle Implementation**
+**Multi-Cycle Processor**
 
-Clock period = $33 \text{ ns}$
-
-- Branch = 1 cycle = $33 \text{ ns}$
-- Arithmetic = 2 cycles = $66 \text{ ns}$
-- Load/Store = 3 cycles = $99 \text{ ns}$
+- Clock Period = **33 ns**
+- Branch = **1 cycle = 33 ns**
+- Arithmetic = **2 cycles = 66 ns**
+- Load/Store = **3 cycles = 99 ns**
 
 ---
 
 ## 5. Latency vs. Throughput
 
-- **Latency:** Time required to complete a single task (response/execution time). It depends on the **critical path**.
-- **Throughput:** Number of tasks completed per unit time.
+### Latency
 
-> **GATE Tip:** Increasing the clock frequency alone does **not** always improve performance. If CPI increases due to architectural or compiler effects, the overall execution time may remain unchanged or even become worse.
+Time required to complete one task.
+
+### Throughput
+
+Number of tasks completed per unit time.
+
+> **GATE Tip:** Increasing clock frequency alone does **not** always improve performance. If CPI also increases, the overall execution time may remain unchanged or even become worse.
 
 ---
 
 ## Source
 
-Cornell University — Computer Architecture Performance Notes
+Cornell University – Computer Architecture Performance Notes
 
 https://www.cs.cornell.edu/courses/cs3410/2019sp/schedule/slides/08-performance-notes.pdf
+
+
