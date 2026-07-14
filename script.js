@@ -18,7 +18,17 @@ if (notesContainer) {
                     `![${alt}](../images/${subjectName}/${src})`
             );
 
+            // Convert Markdown to HTML
             notesContainer.innerHTML = marked.parse(markdown);
+
+            // Render LaTeX equations
+            renderMathInElement(notesContainer, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false }
+                ],
+                throwOnError: false
+            });
 
         })
         .catch(() => {
