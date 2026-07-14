@@ -665,7 +665,8 @@ Final
 - Alfred V. Aho, Stanford University, **CS143: Runtime Environments (Dragon Book Lecture Notes)**  
   https://suif.stanford.edu/dragonbook/lecture-notes/Stanford-CS143/15-Runtime-Environments.pdf
 
-  # Computer Architecture Performance
+
+# Computer Architecture Performance
 
 ## 1. Core Performance Metrics & Equations
 
@@ -870,4 +871,3 @@ Clock period = $33 \text{ ns}$
 Cornell University — Computer Architecture Performance Notes
 
 https://www.cs.cornell.edu/courses/cs3410/2019sp/schedule/slides/08-performance-notes.pdf
-
