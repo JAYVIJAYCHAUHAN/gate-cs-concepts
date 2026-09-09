@@ -211,6 +211,6 @@ An error polynomial $e(x)$ goes **undetected** if and only if $e(x)$ is a multip
 * **CRC-32-IEEE (Ethernet / Wi-Fi)**: $x^{32} + x^{26} + x^{23} + x^{22} + x^{16} + x^{12} + x^{11} + x^{10} + x^8 + x^7 + x^5 + x^4 + x^2 + x + 1$
 
 ```
-```
+
 
 https://web.mit.edu/6.02/www/f2010/handouts/lectures/L7.pdf
