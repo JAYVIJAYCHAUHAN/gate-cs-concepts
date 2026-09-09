@@ -81,6 +81,7 @@ https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
   * Addition and subtraction are both performed using the **XOR** operation (no carries/borrows).
 
 * **Encoding Formula**:
+
   \(w(x) = x^r m(x) + R\left\{ \frac{x^r m(x)}{g(x)} \right\}\)
 
   Where $m(x)$ is the message polynomial, $g(x)$ is the generator polynomial of degree $r$, and $R{\dots}$ represents the remainder.
@@ -126,10 +127,13 @@ $$
 #### Step-by-Step Breakdown
 
 1. **Find Quotient Term**: Divide the highest term of dividend ($x^3$) by divisor ($x^2$):
+
    \(\frac{x^3}{x^2} = x\)
 
 2. **Multiply and XOR**:
+
    \(x \cdot (x^2 + 1) = x^3 + x\)
+
    \((x^3 + 1) \oplus (x^3 + x) = x + 1\)
 
 3. **Check Condition**: Degree of remainder $(x + 1)$ is **1**, which is strictly less than divisor degree (**2**). Division stops.
@@ -216,4 +220,5 @@ An error polynomial $e(x)$ goes **undetected** if and only if $e(x)$ is a multip
 * **CRC-1 (Parity Bit)**: $x + 1$
 * **CRC-16-ANSI**: $x^{16} + x^{15} + x^2 + 1$
 * **CRC-32-IEEE (Ethernet / Wi-Fi)**: $x^{32} + x^{26} + x^{23} + x^{22} + x^{16} + x^{12} + x^{11} + x^{10} + x^8 + x^7 + x^5 + x^4 + x^2 + x + 1$
+
 https://web.mit.edu/6.02/www/f2010/handouts/lectures/L7.pdf
