@@ -42,9 +42,8 @@
 
 https://soft.vub.ac.be/~tvcutsem/distsys/sockets.pdf 
 https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
-
-```markdown
-# Comprehensive Guide to Error Detection (GATE CS)
+```markdowm
+ # Comprehensive Guide to Error Detection (GATE CS)
 
 ## 1. Overview of Error Detection
 * **Purpose**: Used by the receiver to detect bit errors introduced during transmission so corrupted packets can be discarded.
@@ -126,9 +125,17 @@ $$\begin{array}{r} x \phantom{{} + 0x^2 + 0x + 1} \quad \text{(Quotient)} \\ x^2
                 -----
                   1 1 <-- Remainder
 
-```
+ rm**: Divide the highest term of dividend ($x^3$) by divisor ($x^2$):
+   $$\frac{x^3}{x^2} = x$$
+2. **Multiply and XOR**: 
+   $$x \cdot (x^2 + 1) = x^3 + x$$
+   $$(x^3 + 1) \oplus (x^3 + x) = (x^3 \oplus x^3) + x + 1 = x + 1$$
+3. **Check Condition**: Degree of remainder $(x + 1)$ is **1**, which is strictly less than divisor degree (**2**). Division stops.
+* **Result**: Quotient = $x$, Remainder = $x + 1$.
 
-* **Result**: Quotient = `1010` ($x^3 + x$), Remainder = `11` ($x + 1$).
+---
+
+
 
 ---
 
