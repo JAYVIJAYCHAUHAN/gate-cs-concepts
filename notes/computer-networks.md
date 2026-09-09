@@ -38,3 +38,7 @@
 | `read()` / `write()` or `send()` / `recv()` | Used for exchanging data over connection-oriented TCP sockets. |
 | `sendto()` / `recvfrom()` | Used for connectionless UDP communication where destination addresses are specified per packet. |
 | `close()` / `shutdown()` | Releases resources or partially closes communication, disallowing sends or receives individually. |
+
+
+https://soft.vub.ac.be/~tvcutsem/distsys/sockets.pdf 
+https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
