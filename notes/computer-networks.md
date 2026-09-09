@@ -43,13 +43,13 @@
 https://soft.vub.ac.be/~tvcutsem/distsys/sockets.pdf 
 https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
 
-````markdown
 # Comprehensive Guide to Error Detection (GATE CS)
 
 ## 1. Overview of Error Detection
 
 * **Purpose**: Used by the receiver to detect bit errors introduced during transmission so corrupted packets can be discarded.
 * **Mechanism**:
+
   1. **Sender**: Calculates a small digest/checksum from the message and attaches it.
   2. **Receiver**: Re-computes the digest on the received message.
   3. **Comparison**: If the digests match, the message is accepted; if they differ, it is dropped.
@@ -60,6 +60,7 @@ https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
 
 * **Core Idea**: Accumulates message bytes using position-dependent sums to prevent separate bit flips from canceling each other out.
 * **Algorithm**: Processes message bytes $D_1, D_2, \dots, D_n$:
+
   * $A = (1 + \sum_{i=1}^n D_i) \bmod 65521$
   * $B = \sum_{i=1}^n A_i \bmod 65521$
   * **Final Value**: Combined into a 32-bit integer $(B \ll 16) + A$.
@@ -71,14 +72,18 @@ https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
 ## 3. Cyclic Redundancy Check (CRC) Essentials
 
 * **Type**: Polynomial code and cyclic linear block code.
+
 * **Parameters**: Converts a $k$-bit message block into an $n$-bit codeword ($n = k + r$), where $r$ is the number of CRC check bits.
+
 * **$\mathbb{F}_2$ Arithmetic Rules**:
+
   * All calculations use binary polynomial operations.
   * Addition and subtraction are both performed using the **XOR** operation (no carries/borrows).
-* **Encoding Formula**:
-  $$w(x) = x^r m(x) + R\left\{ \frac{x^r m(x)}{g(x)} \right\}$$
 
-  Where $m(x)$ is the message polynomial, $g(x)$ is the generator polynomial of degree $r$, and $R\{\dots\}$ represents the remainder.
+* **Encoding Formula**:
+  \(w(x) = x^r m(x) + R\left\{ \frac{x^r m(x)}{g(x)} \right\}\)
+
+  Where $m(x)$ is the message polynomial, $g(x)$ is the generator polynomial of degree $r$, and $R{\dots}$ represents the remainder.
 
 * **Divisibility Condition**: A codeword $w(x)$ is valid if and only if $g(x)$ divides $w(x)$ with a remainder of $0$.
 
@@ -94,24 +99,41 @@ https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
 
 ---
 
- ## 5. Detailed Division Examples
+## 5. Detailed Division Examples
 
 ### Example 1: Polynomial Long Division ($\frac{x^3 + 1}{x^2 + 1}$)
 
 #### Setup
+
 * **Dividend**: $x^3 + 0x^2 + 0x + 1 \quad \rightarrow \quad \text{`1001`}$
 * **Divisor**: $x^2 + 0x + 1 \quad \rightarrow \quad \text{`101`}$
 
 #### Long Division Layout
-$$\begin{array}{r} x \phantom{{} + 0x^2 + 0x + 1} \quad \text{(Quotient)} \\ x^2 + 0x + 1 \begin{array}{\|l} x^3 + 0x^2 + 0x + 1 \\ \underline{x^3 + 0x^2 + x\phantom{{} + 1}} \quad \text{XOR } x \cdot (x^2 + 1) \\ \phantom{x^3 + 0x^2 + {}} x + 1 \quad \text{(Remainder)} \end{array} \end{array}$$
+
+$$
+\begin{array}{r}
+x \quad \text{(Quotient)} \\
+x^2 + 0x + 1
+\begin{array}{\|l}
+x^3 + 0x^2 + 0x + 1 \\
+\underline{x^3 + 0x^2 + x + 0}
+\quad \text{XOR } x \cdot (x^2 + 1) \\
+x + 1 \quad \text{(Remainder)}
+\end{array}
+\end{array}
+$$
 
 #### Step-by-Step Breakdown
+
 1. **Find Quotient Term**: Divide the highest term of dividend ($x^3$) by divisor ($x^2$):
-   $$\frac{x^3}{x^2} = x$$
-2. **Multiply and XOR**: 
-   $$x \cdot (x^2 + 1) = x^3 + x$$
-   $$(x^3 + 1) \oplus (x^3 + x) = (x^3 \oplus x^3) + x + 1 = x + 1$$
+   \(\frac{x^3}{x^2} = x\)
+
+2. **Multiply and XOR**:
+   \(x \cdot (x^2 + 1) = x^3 + x\)
+   \((x^3 + 1) \oplus (x^3 + x) = x + 1\)
+
 3. **Check Condition**: Degree of remainder $(x + 1)$ is **1**, which is strictly less than divisor degree (**2**). Division stops.
+
 * **Result**: Quotient = $x$, Remainder = $x + 1$.
 
 ---
@@ -119,22 +141,21 @@ $$\begin{array}{r} x \phantom{{} + 0x^2 + 0x + 1} \quad \text{(Quotient)} \\ x^2
 ### Example 2: Binary Bitwise Division (`100100` ÷ `101`)
 
 ```text
-         1 0 1 0     <-- Quotient
-       ________
+         1 0 1 1     <-- Quotient
+       __________
  101  | 1 0 0 1 0 0
         1 0 1
         -----
-          0 1 1 0
+          1 1 0 0
+          1 0 1
+          -----
+            1 1 0
             1 0 1
             -----
-              0 1 1 0
-                0 0 0
-                -----
-                  1 1 <-- Remainder 
-          
-````
+              1 1  <-- Remainder
+```
 
-* **Result**: Quotient = `1010`, Remainder = `10`.
+* **Result**: Quotient = `1011`, Remainder = `11`.
 
 ---
 
@@ -195,8 +216,4 @@ An error polynomial $e(x)$ goes **undetected** if and only if $e(x)$ is a multip
 * **CRC-1 (Parity Bit)**: $x + 1$
 * **CRC-16-ANSI**: $x^{16} + x^{15} + x^2 + 1$
 * **CRC-32-IEEE (Ethernet / Wi-Fi)**: $x^{32} + x^{26} + x^{23} + x^{22} + x^{16} + x^{12} + x^{11} + x^{10} + x^8 + x^7 + x^5 + x^4 + x^2 + x + 1$
-
-```
-
-
 https://web.mit.edu/6.02/www/f2010/handouts/lectures/L7.pdf
