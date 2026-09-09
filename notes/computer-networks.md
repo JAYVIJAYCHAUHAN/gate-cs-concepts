@@ -94,42 +94,24 @@ https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
 
 ---
 
-## 5. Detailed Division Examples
+ ## 5. Detailed Division Examples
 
 ### Example 1: Polynomial Long Division ($\frac{x^3 + 1}{x^2 + 1}$)
 
 #### Setup
-
 * **Dividend**: $x^3 + 0x^2 + 0x + 1 \quad \rightarrow \quad \text{`1001`}$
 * **Divisor**: $x^2 + 0x + 1 \quad \rightarrow \quad \text{`101`}$
 
 #### Long Division Layout
-
-$$
-\begin{array}{r}
-x \phantom{{} + 0x^2 + 0x + 1} \quad \text{(Quotient)} \\
-x^2 + 0x + 1
-\begin{array}{\|l}
-x^3 + 0x^2 + 0x + 1 \\
-\underline{x^3 + 0x^2 + x\phantom{{} + 1}}
-\quad \text{XOR } x \cdot (x^2 + 1) \\
-\phantom{x^3 + 0x^2 + {}}x + 1
-\quad \text{(Remainder)}
-\end{array}
-\end{array}
-$$
+$$\begin{array}{r} x \phantom{{} + 0x^2 + 0x + 1} \quad \text{(Quotient)} \\ x^2 + 0x + 1 \begin{array}{\|l} x^3 + 0x^2 + 0x + 1 \\ \underline{x^3 + 0x^2 + x\phantom{{} + 1}} \quad \text{XOR } x \cdot (x^2 + 1) \\ \phantom{x^3 + 0x^2 + {}} x + 1 \quad \text{(Remainder)} \end{array} \end{array}$$
 
 #### Step-by-Step Breakdown
-
 1. **Find Quotient Term**: Divide the highest term of dividend ($x^3$) by divisor ($x^2$):
    $$\frac{x^3}{x^2} = x$$
-
-2. **Multiply and XOR**:
+2. **Multiply and XOR**: 
    $$x \cdot (x^2 + 1) = x^3 + x$$
-   $$(x^3 + 1) \oplus (x^3 + x) = x + 1$$
-
+   $$(x^3 + 1) \oplus (x^3 + x) = (x^3 \oplus x^3) + x + 1 = x + 1$$
 3. **Check Condition**: Degree of remainder $(x + 1)$ is **1**, which is strictly less than divisor degree (**2**). Division stops.
-
 * **Result**: Quotient = $x$, Remainder = $x + 1$.
 
 ---
@@ -145,7 +127,11 @@ $$
           0 1 1 0
             1 0 1
             -----
-              0 1 0
+              0 1 1 0
+                0 0 0
+                -----
+                  1 1 <-- Remainder 
+          
 ````
 
 * **Result**: Quotient = `1010`, Remainder = `10`.
