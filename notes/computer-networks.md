@@ -43,6 +43,7 @@
 https://soft.vub.ac.be/~tvcutsem/distsys/sockets.pdf 
 https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
 
+```markdown
 # Comprehensive Guide to Error Detection (GATE CS)
 
 ## 1. Overview of Error Detection
@@ -51,6 +52,19 @@ https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
   1. **Sender**: Calculates a small digest/checksum from the message and attaches it.
   2. **Receiver**: Re-computes the digest on the received message.
   3. **Comparison**: If the digests match, the message is accepted; if they differ, it is dropped.
+
+---
+
+## 2. Adler-32 Checksum
+* **Core Idea**: Accumulates message bytes using position-dependent sums to prevent separate bit flips from canceling each other out.
+* **Algorithm**: Processes message bytes $D_1, D_2, \dots, D_n$:
+  * $A = (1 + \sum_{i=1}^n D_i) \bmod 65521$
+  * $B = \sum_{i=1}^n A_i \bmod 65521$
+  * **Final Value**: Combined into a 32-bit integer $(B \ll 16) + A$.
+* **Key Constant**: Uses $65521$, the largest prime smaller than $2^{16}$ ($65536$).
+* **Best Use**: Software-based applications and large files (e.g., zlib, rsync).
+
+---
 
 ## 3. Cyclic Redundancy Check (CRC) Essentials
 * **Type**: Polynomial code and cyclic linear block code.
@@ -72,19 +86,34 @@ https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
 2. **XOR Step**: If the leading bit is `1`, XOR the divisor; if `0`, bring down the next bit.
 3. **Termination**: Division stops when the degree of the remaining polynomial is strictly less than the degree of $g(x)$.
 
-### Step-by-Step Example ($\frac{x^3 + 1}{x^2 + 1}$)
-* **Dividend**: $x^3 + 1 \rightarrow \text{`1001`}$
-* **Divisor**: $x^2 + 1 \rightarrow \text{`101`}$
+---
+
+## 5. Detailed Division Examples
+
+### Example 1: Polynomial Long Division ($\frac{x^3 + 1}{x^2 + 1}$)
+
+#### Setup
+* **Dividend**: $x^3 + 0x^2 + 0x + 1 \quad \rightarrow \quad \text{`1001`}$
+* **Divisor**: $x^2 + 0x + 1 \quad \rightarrow \quad \text{`101`}$
+
+#### Long Division Layout
+$$\begin{array}{r} x \phantom{{} + 0x^2 + 0x + 1} \quad \text{(Quotient)} \\ x^2 + 0x + 1 \begin{array}{\|l} x^3 + 0x^2 + 0x + 1 \\ \underline{x^3 + 0x^2 + x\phantom{{} + 1}} \quad \text{XOR } x \cdot (x^2 + 1) \\ \phantom{x^3 + 0x^2 + {}} x + 1 \quad \text{(Remainder)} \end{array} \end{array}$$
+
+#### Step-by-Step Breakdown
+1. **Find Quotient Term**: Divide the highest term of dividend ($x^3$) by divisor ($x^2$):
+   $$\frac{x^3}{x^2} = x$$
+2. **Multiply and XOR**: 
+   $$x \cdot (x^2 + 1) = x^3 + x$$
+   $$(x^3 + 1) \oplus (x^3 + x) = (x^3 \oplus x^3) + x + 1 = x + 1$$
+3. **Check Condition**: Degree of remainder $(x + 1)$ is **1**, which is strictly less than divisor degree (**2**). Division stops.
+* **Result**: Quotient = $x$, Remainder = $x + 1$.
+
+---
+
+### Example 2: Binary Bitwise Division (`100100` ÷ `101`)
 
 ```text
-         x           <-- Quotient (x)
-       _____________________
-x^2+1 | x^3 + 0x^2 + 0x + 1
-        x^3 + 0x^2 +  x      <-- XOR x * (x^2 + 1)
-        -------------------
-                      x + 1  <-- Remainder (x + 1)
-
-1 0 1 0     <-- Quotient
+         1 0 1 0     <-- Quotient
        ________
  101  | 1 0 0 1 0 0
         1 0 1
@@ -96,62 +125,77 @@ x^2+1 | x^3 + 0x^2 + 0x + 1
                 0 0 0
                 -----
                   1 1 <-- Remainder
-# CRC Error Detection Rules (GATE CS)
 
-## 1. Single Bit Error
+```
+
+* **Result**: Quotient = `1010` ($x^3 + x$), Remainder = `11` ($x + 1$).
+
+---
+
+## 6. CRC Error Detection Rules (GATE CS Focus)
+
+An error polynomial $e(x)$ goes **undetected** if and only if $e(x)$ is a multiple of $g(x)$.
+
+### Rule 1: Single Bit Error
+
 * **Error Form**: $e(x) = x^i$
-* **Rule**: Detected if the generator polynomial $g(x)$ has **2 or more terms**.
+* **Condition**: Guaranteed to be detected if $g(x)$ has **2 or more terms**.
+* **Example**:
+* Let $g(x) = x^3 + 1$ (2 terms) and $e(x) = x^4$.
+* $\frac{x^4}{x^3 + 1} = x$ with remainder $x \neq 0 \implies$ **Detected**.
+* If $g(x) = x^3$ (1 term), $\frac{x^4}{x^3} = x$ with remainder $0 \implies$ **Undetected**.
 
-### Example
-* **Given**: $g(x) = x^3 + 1$ (2 terms). Suppose an error occurs at bit index 4, giving $e(x) = x^4$.
-* **Check**: Divide $e(x)$ by $g(x)$:
-  $$\frac{x^4}{x^3 + 1} = x \quad \text{with a remainder of } x$$
-* **Result**: Since the remainder $x \neq 0$, the error is **detected**.
-* **Failure Case**: If $g(x) = x^3$ (only 1 term), then $\frac{x^4}{x^3} = x$ with a remainder of $0$, which goes **undetected**.
+
 
 ---
 
-## 2. Double Bit Error
+### Rule 2: Double Bit Error
+
 * **Error Form**: $e(x) = x^i + x^j = x^i(1 + x^{j-i})$ for $j > i$
-* **Rule**: Detected if $g(x)$ does not divide $(1 + x^{j-i})$.
+* **Condition**: Detected if $g(x)$ does not divide $(1 + x^{j-i})$.
+* **Example**:
+* Let $i=2, j=5 \implies e(x) = x^2(1 + x^3)$. Let $g(x) = x^2 + 1$.
+* $\frac{x^3 + 1}{x^2 + 1} = x$ with remainder $x + 1 \neq 0 \implies$ **Detected**.
 
-### Example
-* **Given**: Errors occur at bit positions 2 and 5 ($i=2, j=5$), so $e(x) = x^2 + x^5 = x^2(1 + x^3)$. Let $g(x) = x^2 + 1$.
-* **Check**: Test if $g(x) = x^2 + 1$ divides $(1 + x^3)$:
-  $$\frac{x^3 + 1}{x^2 + 1} = x \quad \text{with a remainder of } x + 1$$
-* **Result**: Since the remainder is $x + 1 \neq 0$, $g(x)$ does not divide $(1 + x^3)$. Thus, the double bit error is **detected**.
 
----
-
-## 3. Odd Number of Bit Errors
-* **Rule**: Guaranteed to be detected if $(1 + x)$ is a factor of $g(x)$ (i.e., $g(x)$ has an **even number of terms**).
-
-### Example
-* **Given**: An odd number of errors occur ($e(x) = x^4 + x^2 + 1$, which has 3 terms). Let $g(x) = x + 1$.
-* **Check**: Evaluate $e(x)$ at $x = 1$ in $\mathbb{F}_2$ (XOR arithmetic):
-  $$e(1) = 1^4 + 1^2 + 1 = 1 \oplus 1 \oplus 1 = 1 \neq 0$$
-* **Result**: Any polynomial with a factor of $(1 + x)$ must evaluate to $0$ at $x = 1$. Because $e(1) = 1$, $e(x)$ can never be a multiple of $g(x)$. Thus, the odd-number error pattern is **guaranteed to be detected**.
 
 ---
 
-## 4. Burst Error of Length $b$
+### Rule 3: Odd Number of Bit Errors
 
-### Rule 1: Length $b \le r$
-* **Rule**: Any burst error of length $b \le r$ is **100% detected** (where $r$ is the degree of $g(x)$).
+* **Condition**: Guaranteed to be detected if $(1 + x)$ is a factor of $g(x)$ (which gives $g(x)$ an **even number of terms**).
+* **Example**:
+* Let $e(x) = x^4 + x^2 + 1$ (3 terms, odd) and $g(x) = x + 1$.
+* Evaluate $e(x)$ at $x = 1$: $e(1) = 1 \oplus 1 \oplus 1 = 1 \neq 0$.
+* Since any multiple of $(1+x)$ must evaluate to $0$ at $x=1$, $e(x)$ cannot be a multiple of $g(x) \implies$ **Guaranteed Detected**.
 
-#### Example
-* **Given**: $g(x) = x^4 + x + 1$ (degree $r = 4$). A burst error of length 3 occurs: $e(x) = x^2(x^2 + x + 1) = x^4 + x^3 + x^2$.
-* **Check**: The internal burst pattern polynomial is $x^2 + x + 1$ (degree 2). Since its degree ($2$) is strictly less than the degree of $g(x)$ ($4$), $g(x)$ can never divide it.
-* **Result**: The remainder will be non-zero, so the burst error is **100% detected**.
 
-### Rule 2: Length $b = r + 1$
-* **Rule**: For a burst of length $b = r + 1$, **exactly 1 error pattern** goes undetected (when the error pattern matches $g(x)$ itself).
 
-#### Example
-* **Given**: $g(x) = x^4 + x + 1$ (degree $r = 4$).
-* **Undetected Pattern**: If the error burst pattern is `10011`, then $e(x) = x^4 + x + 1$.
-* **Check**: Divide $e(x)$ by $g(x)$:
-  $$\frac{x^4 + x + 1}{x^4 + x + 1} = 1 \quad \text{with a remainder of } 0$$
-* **Result**: The remainder is $0$, meaning this specific burst error pattern **slips through undetected**. Any other burst of length 5 (e.g., `11001`) leaves a remainder and will be detected.
+---
+
+### Rule 4: Burst Error of Length $b$
+
+1. **Burst Length $b \le r$**:
+* **Condition**: **100% detected** by any generator polynomial of degree $r$.
+* **Example**: $g(x) = x^4 + x + 1$ ($r=4$). An error burst pattern of degree 2 ($x^2+x+1$) has degree strictly less than $r=4$, so $g(x)$ can never divide it $\implies$ **100% Detected**.
+
+
+2. **Burst Length $b = r + 1$**:
+* **Condition**: Exactly **1 error pattern** goes undetected (when the error pattern matches $g(x)$ itself).
+* **Example**: $g(x) = x^4 + x + 1$ ($r=4$). If $e(x) = x^4 + x + 1$ (`10011`), $\frac{e(x)}{g(x)} = 1$ with remainder $0 \implies$ **Undetected**.
+
+
+
+---
+
+## 7. Standard Generator Polynomials
+
+* **CRC-1 (Parity Bit)**: $x + 1$
+* **CRC-16-ANSI**: $x^{16} + x^{15} + x^2 + 1$
+* **CRC-32-IEEE (Ethernet / Wi-Fi)**: $x^{32} + x^{26} + x^{23} + x^{22} + x^{16} + x^{12} + x^{11} + x^{10} + x^8 + x^7 + x^5 + x^4 + x^2 + x + 1$
+
+```
+
+```
 
 https://web.mit.edu/6.02/www/f2010/handouts/lectures/L7.pdf
