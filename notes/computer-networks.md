@@ -250,7 +250,7 @@ Appends a single parity bit to the data block to make the total count of `1`s ei
 * **Overhead:** Exactly **$1$ bit** per frame.
 
 ---
-
+---
 ## 2. Two-Dimensional (2D) Parity Check
 
 ### Concept
@@ -263,7 +263,8 @@ Arranges data into an $M \times N$ matrix. A parity bit is computed for each row
   3. Computes and appends a column parity byte at the bottom.
 * **Receiver Side:** Re-evaluates parity across every row and column.
   * If a single row and a single column fail, the error is at their exact intersection (**Error Correction**).
-
+---
+---
  # 2D Parity Check: Bit Error Scenarios
 
 Below are the examples for 1-bit, 2-bit, 3-bit, and 4-bit error detection and correction scenarios in a 2D Parity matrix (using Even Parity).
@@ -284,7 +285,7 @@ d1  d2  d3  d4  d5  d6  d7  | Row Parity
 1   0   0   0   1   1   0   | 1  <-- Column Parity Byte
 
 ---
-
+---
 ## 1. One-Bit Error Example
 
 Scenario: Bit at Row 3, Column 3 flips during transmission (1 -> 0).
@@ -308,7 +309,7 @@ Receiver Evaluation:
 - Action: Flip bit at (Row 3, Col 3) from 0 to 1. Error is CORRECTED.
 
 ---
-
+---
 ## 2. Two-Bit Error Example
 
 Scenario: Bits at (Row 3, Col 3) AND (Row 3, Col 4) flip during transmission (1 -> 0 and 0 -> 1).
@@ -331,7 +332,7 @@ Receiver Evaluation:
 - Detection: Column 3 and Column 4 parity checks fail. Row 3 passes because two errors cancel out row parity.
 - Result: ERROR DETECTED (due to column parity failures).
 - Correction: CANNOT CORRECT. Exact bit locations cannot be isolated because no row failed.
-
+---
 ---
 
 ## 3. Three-Bit Error Example
@@ -358,7 +359,7 @@ Receiver Evaluation:
 - Correction: CANNOT CORRECT. Multiple failing rows/columns prevent single-bit target resolution.
 
 ---
-
+---
 ## 4. Four-Bit Error Example (Undetected Scenario - Rectangle Pattern)
 
 Scenario: 4 bits forming a rectangle at intersections (Row 3, Col 3), (Row 3, Col 4), (Row 4, Col 3), and (Row 4, Col 4) flip during transmission.
@@ -383,7 +384,7 @@ Receiver Evaluation:
 - GATE Note: 2D parity detects most 4-bit errors, but FAILS when 4 error bits form a rectangular pattern in the grid.
 
 ---
-
+---
 ## GATE CS Summary Table
 
 | Error Type | Detection Status | Correction Status |
@@ -393,11 +394,10 @@ Receiver Evaluation:
 | **3-Bit Error** | Always Detected | Not Correctable |
 | **4-Bit Error** | Detected EXCEPT when 4 errors form a rectangle | Not Correctable |
 
-```
 ---
 
 
-
+---
 ## 3. Internet Checksum
 
 ### Concept
@@ -448,4 +448,4 @@ $$\begin{array}{r@{\quad}l}
 ### GATE CS Key Takeaways
 * **Software-Friendly:** Widely used in transport and network layers (TCP, UDP, IP).
 * **Limitations:** Fails if **data words swap positions** (since addition is commutative) or if complementary errors cancel out in corresponding bit positions.
- 
+--- 
