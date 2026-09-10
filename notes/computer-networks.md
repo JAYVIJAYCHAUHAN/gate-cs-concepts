@@ -163,7 +163,7 @@ $$
 
 ---
 
-## 6. CRC Error Detection Rules (GATE CS Focus)
+## 6. CRC Error Detection Rules 
 
 An error polynomial $e(x)$ goes **undetected** if and only if $e(x)$ is a multiple of $g(x)$.
 
@@ -222,3 +222,176 @@ An error polynomial $e(x)$ goes **undetected** if and only if $e(x)$ is a multip
 * **CRC-32-IEEE (Ethernet / Wi-Fi)**: $x^{32} + x^{26} + x^{23} + x^{22} + x^{16} + x^{12} + x^{11} + x^{10} + x^8 + x^7 + x^5 + x^4 + x^2 + x + 1$
 
 https://web.mit.edu/6.02/www/f2010/handouts/lectures/L7.pdf
+
+# Error Detection Techniques (GATE CS Notes)
+
+Error detection techniques add redundant bits to transmitted data so that bit errors caused by noise or channel interference can be identified at the receiver side.
+
+---
+
+## 1. Simple Parity Check
+
+### Concept
+Appends a single parity bit to the data block to make the total count of `1`s either even (Even Parity) or odd (Odd Parity).
+
+### Sender & Receiver Logic
+* **Sender Side:** Counts the number of `1`s in the data stream $\rightarrow$ appends `1` if required to achieve the desired parity, else appends `0`.
+* **Receiver Side:** Counts all `1`s in the received frame. If the parity condition is violated, an error is flagged.
+
+### Example (Even Parity)
+* **Data:** `0110100` (contains three `1`s)
+* **Sender Transmits:** `01101001` (4 ones $\rightarrow$ Even parity satisfied)
+* **Receiver Case 1 (1-Bit Error):** Receives `01101101` (5 ones = Odd) $\rightarrow$ **Error detected!**
+* **Receiver Case 2 (2-Bit Error):** Receives `00101101` (4 ones = Even) $\rightarrow$ **Undetected!**
+
+### GATE CS Key Takeaways
+* **Capabilities:** Detects **all 1-bit errors** and **any odd number of bit errors**.
+* **Limitations:** Fails to detect an **even number of bit errors** (e.g., 2-bit, 4-bit errors cancel each other out).
+* **Overhead:** Exactly **$1$ bit** per frame.
+
+---
+
+## 2. Two-Dimensional (2D) Parity Check
+
+### Concept
+Arranges data into an $M \times N$ matrix. A parity bit is computed for each row, a parity bit for each column, and an overall parity byte for the entire frame.
+
+### Sender & Receiver Logic
+* **Sender Side:**
+  1. Fits data blocks into a grid/matrix structure.
+  2. Computes and appends a parity bit for every row.
+  3. Computes and appends a column parity byte at the bottom.
+* **Receiver Side:** Re-evaluates parity across every row and column.
+  * If a single row and a single column fail, the error is at their exact intersection (**Error Correction**).
+
+### Base Matrix (Sender Transmits - Even Parity)
+
+$$\begin{array}{ccccccc|c}
+\mathbf{d_1} & \mathbf{d_2} & \mathbf{d_3} & \mathbf{d_4} & \mathbf{d_5} & \mathbf{d_6} & \mathbf{d_7} & \text{\textbf{Row Parity}} \\
+\hline
+0 & 1 & 1 & 0 & 1 & 0 & 0 & \mathbf{1} \\
+1 & 0 & 1 & 1 & 0 & 1 & 0 & \mathbf{0} \\
+0 & 0 & 1 & 0 & 1 & 1 & 0 & \mathbf{1} \\
+1 & 1 & 1 & 0 & 1 & 0 & 1 & \mathbf{1} \\
+1 & 0 & 0 & 1 & 0 & 1 & 1 & \mathbf{0} \\
+\hline
+\mathbf{1} & \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{1} & \mathbf{1} & \mathbf{0} & \mathbf{1} \quad \text{\small(Col Parity Byte)}
+\end{array}$$
+
+---
+
+### Error Detection Examples
+
+#### 1-Bit Error Example (Detected & Corrected)
+* **Corrupted Bit:** Row 3, Column 3 flipped from $1 \rightarrow 0$.
+
+$$\begin{array}{ccccccc|c}
+0 & 1 & 1 & 0 & 1 & 0 & 0 & 1 \\
+1 & 0 & 1 & 1 & 0 & 1 & 0 & 0 \\
+0 & 0 & \mathbf{0^*} & 0 & 1 & 1 & 0 & 1 \quad \leftarrow \text{\textbf{Failed Row 3 (3 ones = Odd)}} \\
+1 & 1 & 1 & 0 & 1 & 0 & 1 & 1 \\
+1 & 0 & 0 & 1 & 0 & 1 & 1 & 0 \\
+\hline
+1 & 0 & \mathbf{0^*} & 0 & 1 & 1 & 0 & 1 \\
+  &   & \uparrow &   &   &   &   & 
+\end{array}$$
+$$\text{\small\textbf{Failed Col 3 (1 one = Odd)}}$$
+
+* **Result:** **Detected & Corrected!** Failed Row 3 and Failed Column 3 intersect at bit $(3,3)$. Flip $0 \rightarrow 1$ to fix the bit.
+
+---
+
+#### 2-Bit Error Example (Detected, Not Correctable)
+* **Corrupted Bits:** Row 3, Col 3 AND Row 3, Col 4 flip.
+
+$$\begin{array}{ccccccc|c}
+0 & 1 & 1 & 0 & 1 & 0 & 0 & 1 \\
+1 & 0 & 1 & 1 & 0 & 1 & 0 & 0 \\
+0 & 0 & \mathbf{0^*} & \mathbf{1^*} & 1 & 1 & 0 & 1 \quad \leftarrow \text{\textbf{Row 3 OK (4 ones = Even)}} \\
+1 & 1 & 1 & 0 & 1 & 0 & 1 & 1 \\
+1 & 0 & 0 & 1 & 0 & 1 & 1 & 0 \\
+\hline
+1 & 0 & \mathbf{0^*} & \mathbf{1^*} & 1 & 1 & 0 & 1 \\
+  &   & \uparrow & \uparrow &   &   &   & 
+\end{array}$$
+$$\text{\small\textbf{Failed Col 3 \& Col 4}}$$
+
+* **Result:** **Detected!** Column 3 and Column 4 fail parity checks. However, Row 3 passes because 2 errors cancel out the row parity. Since there is no row failure, the exact bits cannot be located.
+
+---
+
+#### 3-Bit Error Example (Detected)
+* **Corrupted Bits:** Row 3, Col 3; Row 3, Col 4; AND Row 4, Col 3 flip.
+
+$$\begin{array}{ccccccc|c}
+0 & 1 & 1 & 0 & 1 & 0 & 0 & 1 \\
+1 & 0 & 1 & 1 & 0 & 1 & 0 & 0 \\
+0 & 0 & \mathbf{0^*} & \mathbf{1^*} & 1 & 1 & 0 & 1 \quad \leftarrow \text{\textbf{Row 3 OK (4 ones)}} \\
+1 & 1 & \mathbf{0^*} & 0 & 1 & 0 & 1 & 1 \quad \leftarrow \text{\textbf{Failed Row 4 (4 ones)}} \\
+1 & 0 & 0 & 1 & 0 & 1 & 1 & 0 \\
+\hline
+1 & 0 & \mathbf{1^*} & \mathbf{1^*} & 1 & 1 & 0 & 1 \\
+  &   & \uparrow & \uparrow &   &   &   & 
+\end{array}$$
+$$\text{\small\textbf{Failed Col 3 \& Col 4}}$$
+
+* **Result:** **Detected!** Row 4, Column 3, and Column 4 all flag parity violations.
+
+---
+
+### GATE CS Key Takeaways
+* **Detection:** Detects **all 1-bit, 2-bit, and 3-bit errors**. Detects **most 4-bit errors** (fails only if 4 errors form a rectangle in the grid).
+* **Correction:** Capable of **1-bit error correction**.
+
+---
+
+## 3. Internet Checksum
+
+### Concept
+Divides data into equal $k$-bit words (typically 16-bit) and calculates their sum using **1's complement addition** (wrap carry-out bits around to the least significant bit).
+
+### Sender & Receiver Logic
+* **Sender Side:**
+  1. Sums all 16-bit words using 1's complement addition.
+  2. Bitwise inverts (NOT) the final sum to produce the **Checksum**.
+  3. Transmits `Data Words + Checksum`.
+* **Receiver Side:**
+  1. Sums all received data words plus the Checksum word using 1's complement addition.
+  2. Bitwise inverts the result.
+  3. If result is all `0`s (`0000...0`), packet is **Valid**; otherwise, an **Error is detected**.
+
+### Example Step-by-Step
+
+* **Given Data Words:**
+  * Word 1 = `1001 1101 0010 1101`
+  * Word 2 = `1100 0011 1101 0101`
+
+* **Sender Step 1 (1's Complement Addition):**
+
+$$\begin{array}{r@{\quad}l}
+1001\ 1101\ 0010\ 1101 & \text{[Word 1]} \\
++\ 1100\ 0011\ 1101\ 0101 & \text{[Word 2]} \\
+\hline
+1\ 0110\ 0001\ 0000\ 0010 & \text{[Carry-out = 1]} \\
++\ 1 & \text{[Wrap carry around]} \\
+\hline
+0110\ 0001\ 0000\ 0011 & \text{[Final Sum]}
+\end{array}$$
+
+* **Sender Step 2 (Invert Sum):**
+  * `NOT(0110 0001 0000 0011)` $\rightarrow$ **Checksum = `1001 1110 1111 1100`**
+
+* **Receiver Verification:**
+
+$$\begin{array}{r@{\quad}l}
+0110\ 0001\ 0000\ 0011 & \text{[Received Words Sum]} \\
++\ 1001\ 1110\ 1111\ 1100 & \text{[Checksum]} \\
+\hline
+1111\ 1111\ 1111\ 1111 & \text{[Total Sum]}
+\end{array}$$
+
+* Inverting `1111 1111 1111 1111` yields `0000 0000 0000 0000` $\rightarrow$ **Data OK!**
+
+### GATE CS Key Takeaways
+* **Software-Friendly:** Widely used in transport and network layers (TCP, UDP, IP).
+* **Limitations:** Fails if **data words swap positions** (since addition is commutative) or if complementary errors cancel out in corresponding bit positions.
