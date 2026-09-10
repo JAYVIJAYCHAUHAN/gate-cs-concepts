@@ -264,86 +264,140 @@ Arranges data into an $M \times N$ matrix. A parity bit is computed for each row
 * **Receiver Side:** Re-evaluates parity across every row and column.
   * If a single row and a single column fail, the error is at their exact intersection (**Error Correction**).
 
-### Base Matrix (Sender Transmits - Even Parity)
+ # 2D Parity Check: Bit Error Scenarios
 
-$$\begin{array}{ccccccc|c}
-\mathbf{d_1} & \mathbf{d_2} & \mathbf{d_3} & \mathbf{d_4} & \mathbf{d_5} & \mathbf{d_6} & \mathbf{d_7} & \text{\textbf{Row Parity}} \\
-\hline
-0 & 1 & 1 & 0 & 1 & 0 & 0 & \mathbf{1} \\
-1 & 0 & 1 & 1 & 0 & 1 & 0 & \mathbf{0} \\
-0 & 0 & 1 & 0 & 1 & 1 & 0 & \mathbf{1} \\
-1 & 1 & 1 & 0 & 1 & 0 & 1 & \mathbf{1} \\
-1 & 0 & 0 & 1 & 0 & 1 & 1 & \mathbf{0} \\
-\hline
-\mathbf{1} & \mathbf{0} & \mathbf{0} & \mathbf{0} & \mathbf{1} & \mathbf{1} & \mathbf{0} & \mathbf{1} \quad \text{\small(Col Parity Byte)}
-\end{array}$$
+Below are the examples for 1-bit, 2-bit, 3-bit, and 4-bit error detection and correction scenarios in a 2D Parity matrix (using Even Parity).
 
 ---
 
-### Error Detection Examples
+## 0. Original Frame Sent by Sender
 
-#### 1-Bit Error Example (Detected & Corrected)
-* **Corrupted Bit:** Row 3, Column 3 flipped from $1 \rightarrow 0$.
+Sender arranges 5 data words of 7 bits each and appends Row Parity and Column Parity bits:
 
-$$\begin{array}{ccccccc|c}
-0 & 1 & 1 & 0 & 1 & 0 & 0 & 1 \\
-1 & 0 & 1 & 1 & 0 & 1 & 0 & 0 \\
-0 & 0 & \mathbf{0^*} & 0 & 1 & 1 & 0 & 1 \quad \leftarrow \text{\textbf{Failed Row 3 (3 ones = Odd)}} \\
-1 & 1 & 1 & 0 & 1 & 0 & 1 & 1 \\
-1 & 0 & 0 & 1 & 0 & 1 & 1 & 0 \\
-\hline
-1 & 0 & \mathbf{0^*} & 0 & 1 & 1 & 0 & 1 \\
-  &   & \uparrow &   &   &   &   & 
-\end{array}$$
-$$\text{\small\textbf{Failed Col 3 (1 one = Odd)}}$$
-
-* **Result:** **Detected & Corrected!** Failed Row 3 and Failed Column 3 intersect at bit $(3,3)$. Flip $0 \rightarrow 1$ to fix the bit.
+Matrix Representation:
+d1  d2  d3  d4  d5  d6  d7  | Row Parity
+---------------------------------------
+0   1   1   0   1   0   0   | 1
+1   0   1   1   0   1   0   | 0
+0   0   1   0   1   1   0   | 1
+1   1   1   0   1   0   1   | 1
+1   0   0   1   0   1   1   | 0
+---------------------------------------
+1   0   0   0   1   1   0   | 1  <-- Column Parity Byte
 
 ---
 
-#### 2-Bit Error Example (Detected, Not Correctable)
-* **Corrupted Bits:** Row 3, Col 3 AND Row 3, Col 4 flip.
+## 1. One-Bit Error Example
 
-$$\begin{array}{ccccccc|c}
-0 & 1 & 1 & 0 & 1 & 0 & 0 & 1 \\
-1 & 0 & 1 & 1 & 0 & 1 & 0 & 0 \\
-0 & 0 & \mathbf{0^*} & \mathbf{1^*} & 1 & 1 & 0 & 1 \quad \leftarrow \text{\textbf{Row 3 OK (4 ones = Even)}} \\
-1 & 1 & 1 & 0 & 1 & 0 & 1 & 1 \\
-1 & 0 & 0 & 1 & 0 & 1 & 1 & 0 \\
-\hline
-1 & 0 & \mathbf{0^*} & \mathbf{1^*} & 1 & 1 & 0 & 1 \\
-  &   & \uparrow & \uparrow &   &   &   & 
-\end{array}$$
-$$\text{\small\textbf{Failed Col 3 \& Col 4}}$$
+Scenario: Bit at Row 3, Column 3 flips during transmission (1 -> 0).
 
-* **Result:** **Detected!** Column 3 and Column 4 fail parity checks. However, Row 3 passes because 2 errors cancel out the row parity. Since there is no row failure, the exact bits cannot be located.
+Received Matrix:
+d1  d2  d3  d4  d5  d6  d7  | Row Parity
+---------------------------------------
+0   1   1   0   1   0   0   | 1
+1   0   1   1   0   1   0   | 0
+0   0  [0]* 0   1   1   0   | 1  <-- FAIL: Row 3 (3 ones = Odd)
+1   1   1   0   1   0   1   | 1
+1   0   0   1   0   1   1   | 0
+---------------------------------------
+1   0  [0]* 0   1   1   0   | 1
+        ^
+      FAIL: Col 3 (1 one = Odd)
 
----
-
-#### 3-Bit Error Example (Detected)
-* **Corrupted Bits:** Row 3, Col 3; Row 3, Col 4; AND Row 4, Col 3 flip.
-
-$$\begin{array}{ccccccc|c}
-0 & 1 & 1 & 0 & 1 & 0 & 0 & 1 \\
-1 & 0 & 1 & 1 & 0 & 1 & 0 & 0 \\
-0 & 0 & \mathbf{0^*} & \mathbf{1^*} & 1 & 1 & 0 & 1 \quad \leftarrow \text{\textbf{Row 3 OK (4 ones)}} \\
-1 & 1 & \mathbf{0^*} & 0 & 1 & 0 & 1 & 1 \quad \leftarrow \text{\textbf{Failed Row 4 (4 ones)}} \\
-1 & 0 & 0 & 1 & 0 & 1 & 1 & 0 \\
-\hline
-1 & 0 & \mathbf{1^*} & \mathbf{1^*} & 1 & 1 & 0 & 1 \\
-  &   & \uparrow & \uparrow &   &   &   & 
-\end{array}$$
-$$\text{\small\textbf{Failed Col 3 \& Col 4}}$$
-
-* **Result:** **Detected!** Row 4, Column 3, and Column 4 all flag parity violations.
+Receiver Evaluation:
+- Detection: Row 3 parity check fails. Column 3 parity check fails.
+- Correction: The single bit error is located at the intersection of Row 3 and Column 3.
+- Action: Flip bit at (Row 3, Col 3) from 0 to 1. Error is CORRECTED.
 
 ---
 
-### GATE CS Key Takeaways
-* **Detection:** Detects **all 1-bit, 2-bit, and 3-bit errors**. Detects **most 4-bit errors** (fails only if 4 errors form a rectangle in the grid).
-* **Correction:** Capable of **1-bit error correction**.
+## 2. Two-Bit Error Example
+
+Scenario: Bits at (Row 3, Col 3) AND (Row 3, Col 4) flip during transmission (1 -> 0 and 0 -> 1).
+
+Received Matrix:
+d1  d2  d3  d4  d5  d6  d7  | Row Parity
+---------------------------------------
+0   1   1   0   1   0   0   | 1
+1   0   1   1   0   1   0   | 0
+0   0  [0]*[1]* 1   1   0   | 1  <-- PASS: Row 3 (4 ones = Even)
+1   1   1   0   1   0   1   | 1
+1   0   0   1   0   1   1   | 0
+---------------------------------------
+1   0  [0]*[1]* 1   1   0   | 1
+        ^   ^
+      FAIL FAIL
+      Col3 Col4
+
+Receiver Evaluation:
+- Detection: Column 3 and Column 4 parity checks fail. Row 3 passes because two errors cancel out row parity.
+- Result: ERROR DETECTED (due to column parity failures).
+- Correction: CANNOT CORRECT. Exact bit locations cannot be isolated because no row failed.
 
 ---
+
+## 3. Three-Bit Error Example
+
+Scenario: Bits at (Row 3, Col 3), (Row 3, Col 4), AND (Row 4, Col 3) flip during transmission.
+
+Received Matrix:
+d1  d2  d3  d4  d5  d6  d7  | Row Parity
+---------------------------------------
+0   1   1   0   1   0   0   | 1
+1   0   1   1   0   1   0   | 0
+0   0  [0]*[1]* 1   1   0   | 1  <-- PASS: Row 3 (4 ones = Even)
+1   1  [0]* 0   1   0   1   | 1  <-- FAIL: Row 4 (4 ones vs original 5 ones)
+1   0   0   1   0   1   1   | 0
+---------------------------------------
+1   0  [1]*[1]* 1   1   0   | 1
+        ^   ^
+      FAIL FAIL
+      Col3 Col4
+
+Receiver Evaluation:
+- Detection: Row 4, Column 3, and Column 4 all flag parity violations.
+- Result: ERROR DETECTED.
+- Correction: CANNOT CORRECT. Multiple failing rows/columns prevent single-bit target resolution.
+
+---
+
+## 4. Four-Bit Error Example (Undetected Scenario - Rectangle Pattern)
+
+Scenario: 4 bits forming a rectangle at intersections (Row 3, Col 3), (Row 3, Col 4), (Row 4, Col 3), and (Row 4, Col 4) flip during transmission.
+
+Received Matrix:
+d1  d2  d3  d4  d5  d6  d7  | Row Parity
+---------------------------------------
+0   1   1   0   1   0   0   | 1
+1   0   1   1   0   1   0   | 0
+0   0  [0]*[1]* 1   1   0   | 1  <-- PASS: Row 3 parity cancels out
+1   1  [0]*[1]* 1   0   1   | 1  <-- PASS: Row 4 parity cancels out
+1   0   0   1   0   1   1   | 0
+---------------------------------------
+1   0  [0]*[0]* 1   1   0   | 1
+        ^   ^
+       PASS PASS
+       Col3 Col4 (Column parities cancel out)
+
+Receiver Evaluation:
+- Detection: All rows pass parity checks. All columns pass parity checks.
+- Result: UNDETECTED ERROR! 
+- GATE Note: 2D parity detects most 4-bit errors, but FAILS when 4 error bits form a rectangular pattern in the grid.
+
+---
+
+## GATE CS Summary Table
+
+| Error Type | Detection Status | Correction Status |
+| :--- | :--- | :--- |
+| **1-Bit Error** | Always Detected | **Correctable** (At Row & Col intersection) |
+| **2-Bit Error** | Always Detected | Not Correctable |
+| **3-Bit Error** | Always Detected | Not Correctable |
+| **4-Bit Error** | Detected EXCEPT when 4 errors form a rectangle | Not Correctable |
+
+---
+
+
 
 ## 3. Internet Checksum
 
