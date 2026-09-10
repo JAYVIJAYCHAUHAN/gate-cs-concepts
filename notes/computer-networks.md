@@ -224,7 +224,6 @@ An error polynomial $e(x)$ goes **undetected** if and only if $e(x)$ is a multip
 https://web.mit.edu/6.02/www/f2010/handouts/lectures/L7.pdf
 
 
-
 ```markdown
 # Error Detection Techniques (GATE CS Notes)
 
@@ -267,17 +266,13 @@ Arranges data into an $M \times N$ matrix. A parity bit is computed for each row
 * **Receiver Side:** Re-evaluates parity across every row and column.
   * If a single row and a single column fail, the error is at their exact intersection (**Error Correction**).
 
- # 2D Parity Check: Bit Error Scenarios
-
-Below are the examples for 1-bit, 2-bit, 3-bit, and 4-bit error detection and correction scenarios in a 2D Parity matrix (using Even Parity).
-
 ---
 
-## 0. Original Frame Sent by Sender
+### Original Frame Sent by Sender
 
 Sender arranges 5 data words of 7 bits each and appends Row Parity and Column Parity bits:
 
-Matrix Representation:
+```text
 d1  d2  d3  d4  d5  d6  d7  | Row Parity
 ---------------------------------------
 0   1   1   0   1   0   0   | 1
@@ -288,13 +283,17 @@ d1  d2  d3  d4  d5  d6  d7  | Row Parity
 ---------------------------------------
 1   0   0   0   1   1   0   | 1  <-- Column Parity Byte
 
+```
+
 ---
 
-## 1. One-Bit Error Example
+### Error Scenarios
 
-Scenario: Bit at Row 3, Column 3 flips during transmission (1 -> 0).
+#### 1-Bit Error Example (Detected & Corrected)
 
-Received Matrix:
+Scenario: Bit at Row 3, Column 3 flips during transmission ($1 \rightarrow 0$).
+
+```text
 d1  d2  d3  d4  d5  d6  d7  | Row Parity
 ---------------------------------------
 0   1   1   0   1   0   0   | 1
@@ -307,18 +306,19 @@ d1  d2  d3  d4  d5  d6  d7  | Row Parity
         ^
       FAIL: Col 3 (1 one = Odd)
 
-Receiver Evaluation:
-- Detection: Row 3 parity check fails. Column 3 parity check fails.
-- Correction: The single bit error is located at the intersection of Row 3 and Column 3.
-- Action: Flip bit at (Row 3, Col 3) from 0 to 1. Error is CORRECTED.
+```
+
+* **Detection:** Row 3 parity check fails. Column 3 parity check fails.
+* **Correction:** Intersection of Row 3 and Column 3 pinpoints the exact corrupted bit.
+* **Action:** Flip bit at (Row 3, Col 3) from 0 to 1 $\rightarrow$ **CORRECTED**.
 
 ---
 
-## 2. Two-Bit Error Example
+#### 2-Bit Error Example (Detected, Not Correctable)
 
-Scenario: Bits at (Row 3, Col 3) AND (Row 3, Col 4) flip during transmission (1 -> 0 and 0 -> 1).
+Scenario: Bits at (Row 3, Col 3) AND (Row 3, Col 4) flip during transmission.
 
-Received Matrix:
+```text
 d1  d2  d3  d4  d5  d6  d7  | Row Parity
 ---------------------------------------
 0   1   1   0   1   0   0   | 1
@@ -329,46 +329,46 @@ d1  d2  d3  d4  d5  d6  d7  | Row Parity
 ---------------------------------------
 1   0  [0]*[1]* 1   1   0   | 1
         ^   ^
-      FAIL FAIL
-      Col3 Col4
+      FAIL FAIL (Col 3 & Col 4)
 
-Receiver Evaluation:
-- Detection: Column 3 and Column 4 parity checks fail. Row 3 passes because two errors cancel out row parity.
-- Result: ERROR DETECTED (due to column parity failures).
-- Correction: CANNOT CORRECT. Exact bit locations cannot be isolated because no row failed.
+```
+
+* **Detection:** Column 3 and Column 4 parity checks fail. Row 3 passes because two errors cancel out row parity.
+* **Result:** **ERROR DETECTED**.
+* **Correction:** **CANNOT CORRECT**. Exact bit locations cannot be isolated because no row failed.
 
 ---
 
-## 3. Three-Bit Error Example
+#### 3-Bit Error Example (Detected)
 
 Scenario: Bits at (Row 3, Col 3), (Row 3, Col 4), AND (Row 4, Col 3) flip during transmission.
 
-Received Matrix:
+```text
 d1  d2  d3  d4  d5  d6  d7  | Row Parity
 ---------------------------------------
 0   1   1   0   1   0   0   | 1
 1   0   1   1   0   1   0   | 0
 0   0  [0]*[1]* 1   1   0   | 1  <-- PASS: Row 3 (4 ones = Even)
-1   1  [0]* 0   1   0   1   | 1  <-- FAIL: Row 4 (4 ones vs original 5 ones)
+1   1  [0]* 0   1   0   1   | 1  <-- FAIL: Row 4
 1   0   0   1   0   1   1   | 0
 ---------------------------------------
 1   0  [1]*[1]* 1   1   0   | 1
         ^   ^
-      FAIL FAIL
-      Col3 Col4
+      FAIL FAIL (Col 3 & Col 4)
 
-Receiver Evaluation:
-- Detection: Row 4, Column 3, and Column 4 all flag parity violations.
-- Result: ERROR DETECTED.
-- Correction: CANNOT CORRECT. Multiple failing rows/columns prevent single-bit target resolution.
+```
+
+* **Detection:** Row 4, Column 3, and Column 4 all flag parity violations.
+* **Result:** **ERROR DETECTED**.
+* **Correction:** **CANNOT CORRECT**.
 
 ---
 
-## 4. Four-Bit Error Example (Undetected Scenario - Rectangle Pattern)
+#### 4-Bit Error Example (Undetected Rectangle Pattern)
 
-Scenario: 4 bits forming a rectangle at intersections (Row 3, Col 3), (Row 3, Col 4), (Row 4, Col 3), and (Row 4, Col 4) flip during transmission.
+Scenario: 4 bits forming a rectangle at intersections (Row 3, Col 3), (Row 3, Col 4), (Row 4, Col 3), and (Row 4, Col 4) flip.
 
-Received Matrix:
+```text
 d1  d2  d3  d4  d5  d6  d7  | Row Parity
 ---------------------------------------
 0   1   1   0   1   0   0   | 1
@@ -379,20 +379,19 @@ d1  d2  d3  d4  d5  d6  d7  | Row Parity
 ---------------------------------------
 1   0  [0]*[0]* 1   1   0   | 1
         ^   ^
-       PASS PASS
-       Col3 Col4 (Column parities cancel out)
+       PASS PASS (Col 3 & Col 4 cancel out)
 
-Receiver Evaluation:
-- Detection: All rows pass parity checks. All columns pass parity checks.
-- Result: UNDETECTED ERROR! 
-- GATE Note: 2D parity detects most 4-bit errors, but FAILS when 4 error bits form a rectangular pattern in the grid.
+```
+
+* **Detection:** All rows pass parity checks. All columns pass parity checks.
+* **Result:** **UNDETECTED ERROR!**
 
 ---
 
-## GATE CS Summary Table
+### GATE CS Key Takeaways for 2D Parity
 
 | Error Type | Detection Status | Correction Status |
-| :--- | :--- | :--- |
+| --- | --- | --- |
 | **1-Bit Error** | Always Detected | **Correctable** (At Row & Col intersection) |
 | **2-Bit Error** | Always Detected | Not Correctable |
 | **3-Bit Error** | Always Detected | Not Correctable |
@@ -400,32 +399,33 @@ Receiver Evaluation:
 
 ---
 
-### GATE CS Key Takeaways
-* **Detection:** Detects **all 1-bit, 2-bit, and 3-bit errors**. Detects **most 4-bit errors** (fails only if 4 errors form a rectangle in the grid).
-* **Correction:** Capable of **1-bit error correction**.
-
----
-
 ## 3. Internet Checksum
 
 ### Concept
+
 Divides data into equal $k$-bit words (typically 16-bit) and calculates their sum using **1's complement addition** (wrap carry-out bits around to the least significant bit).
 
 ### Sender & Receiver Logic
+
 * **Sender Side:**
-  1. Sums all 16-bit words using 1's complement addition.
-  2. Bitwise inverts (NOT) the final sum to produce the **Checksum**.
-  3. Transmits `Data Words + Checksum`.
+1. Sums all 16-bit words using 1's complement addition.
+2. Bitwise inverts (NOT) the final sum to produce the **Checksum**.
+3. Transmits `Data Words + Checksum`.
+
+
 * **Receiver Side:**
-  1. Sums all received data words plus the Checksum word using 1's complement addition.
-  2. Bitwise inverts the result.
-  3. If result is all `0`s (`0000...0`), packet is **Valid**; otherwise, an **Error is detected**.
+1. Sums all received data words plus the Checksum word using 1's complement addition.
+2. Bitwise inverts the result.
+3. If result is all `0`s (`0000...0`), packet is **Valid**; otherwise, an **Error is detected**.
+
+
 
 ### Example Step-by-Step
 
 * **Given Data Words:**
-  * Word 1 = `1001 1101 0010 1101`
-  * Word 2 = `1100 0011 1101 0101`
+* Word 1 = `1001 1101 0010 1101`
+* Word 2 = `1100 0011 1101 0101`
+
 
 * **Sender Step 1 (1's Complement Addition):**
 
@@ -440,7 +440,8 @@ $$\begin{array}{r@{\quad}l}
 \end{array}$$
 
 * **Sender Step 2 (Invert Sum):**
-  * `NOT(0110 0001 0000 0011)` $\rightarrow$ **Checksum = `1001 1110 1111 1100`**
+* `NOT(0110 0001 0000 0011)` $\rightarrow$ **Checksum = `1001 1110 1111 1100**`
+
 
 * **Receiver Verification:**
 
@@ -454,7 +455,10 @@ $$\begin{array}{r@{\quad}l}
 * Inverting `1111 1111 1111 1111` yields `0000 0000 0000 0000` $\rightarrow$ **Data OK!**
 
 ### GATE CS Key Takeaways
+
 * **Software-Friendly:** Widely used in transport and network layers (TCP, UDP, IP).
 * **Limitations:** Fails if **data words swap positions** (since addition is commutative) or if complementary errors cancel out in corresponding bit positions.
+
+```
 
 ```
