@@ -398,34 +398,26 @@ d1  d2  d3  d4  d5  d6  d7  | Row Parity
 | **4-Bit Error** | Detected EXCEPT when 4 errors form a rectangle | Not Correctable |
 
 ---
-
 ## 3. Internet Checksum
 
 ### Concept
-
 Divides data into equal $k$-bit words (typically 16-bit) and calculates their sum using **1's complement addition** (wrap carry-out bits around to the least significant bit).
 
 ### Sender & Receiver Logic
-
 * **Sender Side:**
-1. Sums all 16-bit words using 1's complement addition.
-2. Bitwise inverts (NOT) the final sum to produce the **Checksum**.
-3. Transmits `Data Words + Checksum`.
-
-
+  1. Sums all 16-bit words using 1's complement addition.
+  2. Bitwise inverts (NOT) the final sum to produce the **Checksum**.
+  3. Transmits `Data Words + Checksum`.
 * **Receiver Side:**
-1. Sums all received data words plus the Checksum word using 1's complement addition.
-2. Bitwise inverts the result.
-3. If result is all `0`s (`0000...0`), packet is **Valid**; otherwise, an **Error is detected**.
-
-
+  1. Sums all received data words plus the Checksum word using 1's complement addition.
+  2. Bitwise inverts the result.
+  3. If result is all `0`s (`0000...0`), packet is **Valid**; otherwise, an **Error is detected**.
 
 ### Example Step-by-Step
 
 * **Given Data Words:**
-* Word 1 = `1001 1101 0010 1101`
-* Word 2 = `1100 0011 1101 0101`
-
+  * Word 1 = `1001 1101 0010 1101`
+  * Word 2 = `1100 0011 1101 0101`
 
 * **Sender Step 1 (1's Complement Addition):**
 
@@ -440,8 +432,7 @@ $$\begin{array}{r@{\quad}l}
 \end{array}$$
 
 * **Sender Step 2 (Invert Sum):**
-* `NOT(0110 0001 0000 0011)` $\rightarrow$ **Checksum = `1001 1110 1111 1100**`
-
+  * `NOT(0110 0001 0000 0011)` $\rightarrow$ **Checksum = `1001 1110 1111 1100`**
 
 * **Receiver Verification:**
 
@@ -455,10 +446,10 @@ $$\begin{array}{r@{\quad}l}
 * Inverting `1111 1111 1111 1111` yields `0000 0000 0000 0000` $\rightarrow$ **Data OK!**
 
 ### GATE CS Key Takeaways
-
 * **Software-Friendly:** Widely used in transport and network layers (TCP, UDP, IP).
 * **Limitations:** Fails if **data words swap positions** (since addition is commutative) or if complementary errors cancel out in corresponding bit positions.
 
+https://mislove.org/teaching/cs4700/spring11/lectures/lecture13.pdf
 ```
 
 ```
