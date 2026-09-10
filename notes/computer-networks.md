@@ -449,3 +449,16 @@ $$\begin{array}{r@{\quad}l}
 ### GATE CS Key Takeaways
 * **Software-Friendly:** Widely used in transport and network layers (TCP, UDP, IP).
 * **Limitations:** Fails if **data words swap positions** (since addition is commutative) or if complementary errors cancel out in corresponding bit positions.
+  Received Matrix:
+d1  d2  d3  d4  d5  d6  d7  | Row Parity
+---------------------------------------
+0   1   1   0   1   0   0   | 1
+1   0   1   1   0   1   0   | 0
+0   0  [0]*[1]* 1   1   0   | 1  <-- PASS: Row 3 parity cancels out
+1   1  [0]*[1]* 1   0   1   | 1  <-- PASS: Row 4 parity cancels out
+1   0   0   1   0   1   1   | 0
+---------------------------------------
+1   0  [0]*[0]* 1   1   0   | 1
+        ^   ^
+       PASS PASS
+       Col3 Col4 (Column parities cancel out)
