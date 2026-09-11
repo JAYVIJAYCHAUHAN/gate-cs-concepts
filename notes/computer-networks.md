@@ -413,7 +413,7 @@ Divides data into equal $k$-bit words (typically 16-bit) and calculates their su
   2. Bitwise inverts the result.
   3. If result is all `0`s (`0000...0`), packet is **Valid**; otherwise, an **Error is detected**.
 
-  CheckSumExample
+  CheckSumExample.JPG
 
 ### GATE CS Key Takeaways
 * **Software-Friendly:** Widely used in transport and network layers (TCP, UDP, IP).
