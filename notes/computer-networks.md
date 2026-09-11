@@ -413,37 +413,7 @@ Divides data into equal $k$-bit words (typically 16-bit) and calculates their su
   2. Bitwise inverts the result.
   3. If result is all `0`s (`0000...0`), packet is **Valid**; otherwise, an **Error is detected**.
 
-  ### Example Step-by-Step
-
-* **Given Data Words:**
-  * Word 1 = `1001 1101 0010 1101`
-  * Word 2 = `1100 0011 1101 0101`
-
-* **Sender Step 1 (1's Complement Addition):**
-
-$$\begin{array}{r@{\quad}l}
-1001\ 1101\ 0010\ 1101 & \text{[Word 1]} \\
-+\ 1100\ 0011\ 1101\ 0101 & \text{[Word 2]} \\
-\hline
-1\ 0110\ 0001\ 0000\ 0010 & \text{[Carry-out = 1]} \\
-+\ 1 & \text{[Wrap carry around]} \\
-\hline
-0110\ 0001\ 0000\ 0011 & \text{[Final Sum]}
-\end{array}$$
-
-* **Sender Step 2 (Invert Sum):**
-  * `NOT(0110 0001 0000 0011)` $\rightarrow$ **Checksum = `1001 1110 1111 1100`**
-
-* **Receiver Verification:**
-
-$$\begin{array}{r@{\quad}l}
-0110\ 0001\ 0000\ 0011 & \text{[Received Words Sum]} \\
-+\ 1001\ 1110\ 1111\ 1100 & \text{[Checksum]} \\
-\hline
-1111\ 1111\ 1111\ 1111 & \text{[Total Sum]}
-\end{array}$$
-
-* Inverting `1111 1111 1111 1111` yields `0000 0000 0000 0000` $\rightarrow$ **Data OK!**
+  CheckSumExample
 
 ### GATE CS Key Takeaways
 * **Software-Friendly:** Widely used in transport and network layers (TCP, UDP, IP).
